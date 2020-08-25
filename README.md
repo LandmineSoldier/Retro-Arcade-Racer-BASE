@@ -14,3 +14,8 @@ backslash must be entered twice.
 (NO)   C:\Users\user\Desktop\RaceGameSound\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav
 
 (YES)  C:\\Users\\user\\Desktop\\RaceGameSound\\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav
+
+
+하지만 wav 파일만 지원합니다.
+
+But it only supports wav files.
