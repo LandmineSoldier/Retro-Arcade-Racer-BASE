@@ -47,8 +47,13 @@ int RroadUD = 0;
 float x[8];
 float y[8];
 
+//float pre_x;
+//float pre_y;
+
 float lineX[4];
 float lineY[4];
+
+int LRspeed = 4;
 
 
 /*
@@ -86,6 +91,16 @@ int audi[16][16] = {
 	{2,3,3,3,2,2,6,6,6,6,2,2,3,3,3,2},
 	{5,5,5,5,0,0,0,0,0,0,0,0,5,5,5,5}
 };
+
+int cloud[6][10] = {
+	{0,0,0,0,0,0,0,0,0,0}, //
+	{0,0,1,1,1,0,0,0,0,0}, //  ■■■     
+	{1,1,1,1,1,1,1,1,1,1}, //■■■■■■■■■■
+	{1,1,1,1,1,1,1,1,1,1}, //■■■■■■■■■■
+	{0,0,0,0,0,0,1,1,1,0}, //      ■■■ 
+	{0,0,0,0,0,0,0,0,0,0}, //
+};
+
 
 enum colorName
 {
@@ -295,12 +310,48 @@ int print_map() // FLAT 맵 출력
 
 int background()
 {
-	color(SKYBLUE, WHITE);
 	for (int i = 0; i < MAXY / 2; i++)
 	{
 		for (int j = 0; j < MAXX; j++)
 		{
 			gotoxy(j * 2  + 20, i + 10);
+			if ((10 <= i && i <= 15) && (25 <= j && j < 35))
+			{
+				if (cloud[i - 10][j - 25] == 1)
+				{
+					color(WHITE, WHITE);
+				}
+				else
+				{
+					color(SKYBLUE, WHITE);
+				}
+			}
+			else if ((4 <= i && i <= 9) && (7 <= j && j < 17))
+			{
+				if (cloud[i - 4][j - 7] == 1)
+				{
+					color(WHITE, WHITE);
+				}
+				else
+				{
+					color(SKYBLUE, WHITE);
+				}
+			}
+			else if ((6 <= i && i <= 11) && (45 <= j && j < 55))
+			{
+				if (cloud[i - 6][j - 45] == 1)
+				{
+					color(WHITE, WHITE);
+				}
+				else
+				{
+					color(SKYBLUE, WHITE);
+				}
+			}
+			else
+			{
+				color(SKYBLUE, WHITE);
+			}
 			printf("  ");
 		}
 	}
@@ -343,10 +394,8 @@ void CursorView(int show) // 입력 커서 제거
 
 int roadMove()
 {
-
 	if (kbhit())
 	{
-		//flatClear();
 		int LR = getch();
 		switch (LR)
 		{
@@ -355,22 +404,22 @@ int roadMove()
 			{
 				if (x[2] > 0)
 				{
-					x[2]--;
-					x[4]--;
+					x[2] -= LRspeed;
+					x[4] -= LRspeed;
 					if (y[3] == 0)
 					{
-						x[3]--;
+						x[3] -= LRspeed;
 					}
 					if (y[3] < MAXY)
-						y[3]++;
+						y[3] += LRspeed;
 
 				}
 				else if (x[2] <= 0)
 				{
 					x[2] = 0;
-					x[3]--;
-					x[5]--;
-					y[2]--;
+					x[3] -= LRspeed;
+					x[5] -= LRspeed;
+					y[2] -= LRspeed;
 				}
 			}
 			break;
@@ -379,21 +428,21 @@ int roadMove()
 			{
 				if (x[3] < MAXX - 1)
 				{
-					x[3]++;
-					x[5]++;
+					x[3] += LRspeed;
+					x[5] += LRspeed;
 					if (y[2] == 0)
 					{
-						x[2]++;
+						x[2] += LRspeed;
 					}
 					if (y[2] < MAXY)
-						y[2]++;
+						y[2] += LRspeed;
 				}
 				else if (x[3] >= MAXX - 1)
 				{
 					x[3] = MAXX - 1;
-					x[2]++;
-					x[4]++;
-					y[3]--;
+					x[2] += LRspeed;
+					x[4] += LRspeed;
+					y[3] -= LRspeed;
 				}
 			}
 			break;
@@ -548,6 +597,9 @@ int main(void)
 		lineY[1] = y[1];
 	}
 
+	//pre_x = x[2];
+	//pre_y = y[2];
+
 	playSound();
 		car();
 	CursorView(0);
@@ -557,7 +609,9 @@ int main(void)
 		roadMove();
 
 		/* 중앙 도로 생성 */
+		/*if (x[2] != pre_x || y[2] != pre_y)*/
 		{ 
+			//flatClear();
 			/* 중앙 도로줄 선잇기 */
 			MAXorMIN(x[0], x[1], y[0], y[1]);
 			lining(&x[0], &x[1], &y[0], &y[1], max_x, min_x, max_y, min_y);
@@ -583,6 +637,11 @@ int main(void)
 			MAXorMIN(x[1], x[3], y[1], y[3]);
 			//copyMap();
 			lining(&x[1], &x[3], &y[1], &y[3], max_x, min_x, max_y, min_y);
+
+			//pre_x = x[2];
+			//pre_y = y[2];
+
+
 		}
 
 		print_map();
