@@ -17,9 +17,10 @@
 #define MAXY 40
 #define MAXX 60
 
-#define ROAD_SPACE (MAXX / 2 - 2);
+//#define ROAD_SPACE (MAXX / 2 - 2);
 
-#define Third_Run "C:\\Users\\user\\Desktop\\RaceGameSound\\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav"
+#define runSound "C:\\Users\\user\\Desktop\\RaceGameSound\\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav"
+#define breakSound
 
 
 int layer = 0;
@@ -29,6 +30,7 @@ int delaySpeed = 0;
 int delayCount = 0;
 
 int flat[MAXY][MAXX] = { 0, };
+int obstacleMap[MAXY/2][MAXX] = { 0, };
 int roadForward[4][MAXY / 2][MAXX] = { 0, };
 
 
@@ -47,11 +49,11 @@ int RroadUD = 0;
 float x[8];
 float y[8];
 
-//float pre_x;
-//float pre_y;
+float obstacleLineX[4];
+float obstacleLineY[4];
 
-float lineX[4];
-float lineY[4];
+float midX[4];
+float midY[4];
 
 int LRspeed = 4;
 
@@ -231,7 +233,6 @@ int print_map() // FLAT 맵 출력
 			}
 			if (!((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) || check == 1)
 			{
-				//if (audi[i - MAXY / 2][j] != 0)
 				if (flat[i][j] == 0)
 				{
 					if (isRoad == 1)
@@ -267,7 +268,7 @@ int print_map() // FLAT 맵 출력
 					}
 					color(D_GRAY, D_GRAY);
 					if (roadForward[layer][i - MAXY / 2][j] == 0 && i >= MAXY / 2)
-						printf("■");
+						printf("  ");
 				}
 				check = 0;
 			}
@@ -396,9 +397,17 @@ int roadMove()
 {
 	if (kbhit())
 	{
-		int LR = getch();
-		switch (LR)
+		int moveControl = getch();
+		switch (moveControl)
 		{
+		case 'w':
+			if (delaySpeed != 0)
+				delaySpeed--;
+			break;
+		case 's':
+			if (delaySpeed != 5)
+				delaySpeed++;
+			break;
 		case 'd':
 			if (y[2] > (MAXY / 2 + 3))
 			{
@@ -446,6 +455,9 @@ int roadMove()
 				}
 			}
 			break;
+		case ' ': //브레이크
+			delayCount--;
+			break;
 		}
 	}
 }
@@ -489,7 +501,7 @@ int fullScreen()
 
 int playSound()
 {
-	PlaySound(TEXT(Third_Run), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
+	PlaySound(TEXT(runSound), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
 	//사운드 파일 위치, SND_ASYNC, SND_LOOP 세가지가 제일 중요
 	//SND_ASYNC : 재생하면서 다음코드 실행
 	//SND_LOOP : 반복재생
@@ -590,11 +602,25 @@ int main(void)
 		y[5] = (MAXY - 1);
 
 
-		lineX[0] = x[1] - x[0] - 1;
-		lineY[0] = y[1];
 
-		lineX[1] = x[1] - x[0] - 1;
-		lineY[1] = y[1];
+		
+
+
+		//lineX[0] = x[1] - x[0] - 1;
+		//lineY[0] = y[1];
+
+		//lineX[1] = x[1] - x[0] - 1;
+		//lineY[1] = y[1];
+
+		//midX[0] = x[0] + 3;
+		//midY[0] = y[0];
+		//midX[1] = x[1] - 3;
+		//midY[1] = y[1];
+
+		//midX[2] = (MAXX / 3) * 1 + 3 - 1;
+		//midY[2] = MAXY - 1;
+		//midX[3] = (MAXX / 3) * 2 - 3;
+		//midY[3] = MAXY - 1;
 	}
 
 	//pre_x = x[2];
@@ -608,11 +634,11 @@ int main(void)
 
 		roadMove();
 
-		/* 중앙 도로 생성 */
+		/* 맵 도로 생성 */
 		/*if (x[2] != pre_x || y[2] != pre_y)*/
 		{ 
 			//flatClear();
-			/* 중앙 도로줄 선잇기 */
+			/* 맵 중앙 도로줄 선잇기 */
 			MAXorMIN(x[0], x[1], y[0], y[1]);
 			lining(&x[0], &x[1], &y[0], &y[1], max_x, min_x, max_y, min_y);
 
@@ -628,7 +654,7 @@ int main(void)
 			lining(&x[5], &x[3], &y[5], &y[3], max_x, min_x, max_y, min_y);
 
 
-			/*중앙 도로줄 꼭짓점과 하단 도로줄 꼭짓점 연결*/
+			/*맵 중앙 도로줄 꼭짓점과 하단 도로줄 꼭짓점 연결*/
 
 			/*좌측*/
 			MAXorMIN(x[0], x[2], y[0], y[2]);
@@ -638,21 +664,37 @@ int main(void)
 			//copyMap();
 			lining(&x[1], &x[3], &y[1], &y[3], max_x, min_x, max_y, min_y);
 
+
+
+
+
+
+
+
+
 			//pre_x = x[2];
 			//pre_y = y[2];
 
 
+			//MAXorMIN(midX[0], midX[1], midY[0], midY[1]);
+			//lining(&midX[0], &midX[1], &midY[0], &midY[1], max_x, min_x, max_y, min_y);
+			//MAXorMIN(midX[1], midX[3], midY[1], midY[3]);
+			//lining(&midX[1], &midX[3], &midY[1], &midY[3], max_x, min_x, max_y, min_y);
+			//MAXorMIN(midX[3], midX[2], midY[3], midY[2]);
+			//lining(&midX[3], &midX[2], &midY[3], &midY[2], max_x, min_x, max_y, min_y);
+			//MAXorMIN(midX[2], midX[0], midY[2], midY[0]);
+			//lining(&midX[2], &midX[0], &midY[2], &midY[0], max_x, min_x, max_y, min_y);
 		}
 
 		print_map();
 
 		//flatClear(); /*   <==   print_map(); 하단에 이동됨. */
 
-		if (delayCount == delaySpeed)
+		if (delayCount >= delaySpeed)
 		{
-			if (layer != 3)
+			if (layer != 3) // 애니메이션 장 수
 				layer++;
-			else if (layer == 3)
+			else if (layer == 3) // 마지막 애니메이션 장
 				layer = 0;
 			delayCount = 0;
 		}
