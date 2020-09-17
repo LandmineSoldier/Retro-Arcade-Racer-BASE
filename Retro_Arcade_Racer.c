@@ -141,7 +141,7 @@ int MAXorMIN(float x1, float x2, float  y1, float y2);
 
 void CursorView(int show);
 
-int roadMove();
+int moveControl();
 
 int roadDownAnimation();
 
@@ -153,164 +153,172 @@ int car();
 
 int main(void)
 {
-	CursorView(0);
-	system("mode con:lines=41  cols=121"); //콘솔창 세로, 가로 조정
-
-	fullScreen();
-
-	Sleep(100);
-
-	roadDownAnimation();
-
-	background();
-
-	/* 도로 */
+	/* 게임 시작전 설정 */
 	{
-		x[0] = (MAXX - 5) / 2; //도로 중앙의 좌측 
-		y[0] = (MAXY) / 2;
+		CursorView(0);
+		system("mode con:lines=41  cols=121"); //콘솔창 세로, 가로 조정
 
-		x[1] = (MAXX + 5) / 2; //도로 중앙의 우측
-		y[1] = (MAXY) / 2;
+		fullScreen();
 
+		Sleep(100);
 
+		roadDownAnimation();
 
-		x[2] = (0); //도로 하단의 좌측 
-		y[2] = (MAXY - 1);
+		background();
 
-		x[3] = (MAXX - 1); //도로 하단의 우측
-		y[3] = (MAXY - 1);
-
-
-
-		x[4] = (0); //도로 하단의 좌측 (보조)
-		y[4] = (MAXY - 1);
-
-		x[5] = (MAXX - 1); //도로 하단의 우측 (보조)
-		y[5] = (MAXY - 1);
-
-		//lineX[0] = x[1] - x[0] - 1;
-		//lineY[0] = y[1];
-
-		//lineX[1] = x[1] - x[0] - 1;
-		//lineY[1] = y[1];
-
-		//midX[0] = x[0] + 3;
-		//midY[0] = y[0];
-		//midX[1] = x[1] - 3;
-		//midY[1] = y[1];
-
-		//midX[2] = (MAXX / 3) * 1 + 3 - 1;
-		//midY[2] = MAXY - 1;
-		//midX[3] = (MAXX / 3) * 2 - 3;
-		//midY[3] = MAXY - 1;
-	}
-
-
-	/* 장애물 라인 */
-	{
-		//최상단 장애물 라인 flat에서 Y축 중앙, //obsatcleMap에서 Y축 0
-		obstacleLineX[0] = (MAXX / 2) - 2;
-		obstacleLineY[0] = MAXY / 2;
-		obstacleLineX[1] = (MAXX / 2 ) + 1;
-		obstacleLineY[1] = MAXY / 2;
-
-		//최하단 장애물 라인 flat에서 Y축 최하단, //obstacleMap에서 Y축 최하단
-		obstacleLineX[2] = (MAXX / 4) * 1;
-		obstacleLineY[2] = MAXY - 1;
-		obstacleLineX[3] = (MAXX / 4) * 3;
-		obstacleLineY[3] = MAXY - 1;
-	}
-
-
-	//pre_x = x[2];
-	//pre_y = y[2];
-
-	//playSound();
-	car();
-	CursorView(0);
-	while (TRUE)
-	{
-
-		roadMove();
-
-		/* 맵 도로 생성 */
-		/*if (x[2] != pre_x || y[2] != pre_y)*/
-		{ 
-			//flatClear();
-			/* 맵 중앙 도로줄 선잇기 */
-			MAXorMIN(x[0], x[1], y[0], y[1]);
-			lining(&x[0], &x[1], &y[0], &y[1], max_x, min_x, max_y, min_y);
-
-
-			/* 보조선 연결 */
-			MAXorMIN(x[2], x[4], y[2], y[4]);
-			lining(&x[2], &x[4], &y[2], &y[4], max_x, min_x, max_y, min_y);
-
-			MAXorMIN(x[4], x[5], y[4], y[5]);
-			lining(&x[4], &x[5], &y[4], &y[5], max_x, min_x, max_y, min_y);
-
-			MAXorMIN(x[5], x[3], y[5], y[3]);
-			lining(&x[5], &x[3], &y[5], &y[3], max_x, min_x, max_y, min_y);
-
-
-			/*맵 중앙 도로줄 꼭짓점과 하단 도로줄 꼭짓점 연결*/
-
-			/*좌측*/
-			MAXorMIN(x[0], x[2], y[0], y[2]);
-			lining(&x[0], &x[2], &y[0], &y[2], max_x, min_x, max_y, min_y);
-			/*우측*/
-			MAXorMIN(x[1], x[3], y[1], y[3]);
-			//copyMap();
-			lining(&x[1], &x[3], &y[1], &y[3], max_x, min_x, max_y, min_y);
-
-
-
-
-
-
-
-
-
-			//pre_x = x[2];
-			//pre_y = y[2];
-
-
-			//MAXorMIN(midX[0], midX[1], midY[0], midY[1]);
-			//lining(&midX[0], &midX[1], &midY[0], &midY[1], max_x, min_x, max_y, min_y);
-			//MAXorMIN(midX[1], midX[3], midY[1], midY[3]);
-			//lining(&midX[1], &midX[3], &midY[1], &midY[3], max_x, min_x, max_y, min_y);
-			//MAXorMIN(midX[3], midX[2], midY[3], midY[2]);
-			//lining(&midX[3], &midX[2], &midY[3], &midY[2], max_x, min_x, max_y, min_y);
-			//MAXorMIN(midX[2], midX[0], midY[2], midY[0]);
-			//lining(&midX[2], &midX[0], &midY[2], &midY[0], max_x, min_x, max_y, min_y);
-		}
-
-
-		/* 장애물 생성라인 */
+		/* 도로 */
 		{
-			MAXorMIN(obstacleLineX[0], obstacleLineX[2], obstacleLineY[0], obstacleLineY[2]);
-			liningOtc(&obstacleLineX[0], &obstacleLineX[2], &obstacleLineY[0], &obstacleLineY[2], max_x, min_x, max_y, min_y);
+			x[0] = (MAXX - 5) / 2; //도로 중앙의 좌측 
+			y[0] = (MAXY) / 2;
 
-			MAXorMIN(obstacleLineX[1], obstacleLineX[3], obstacleLineY[1], obstacleLineY[3]);
-			liningOtc(&obstacleLineX[1], &obstacleLineX[3], &obstacleLineY[1], &obstacleLineY[3], max_x, min_x, max_y, min_y);
+			x[1] = (MAXX + 5) / 2; //도로 중앙의 우측
+			y[1] = (MAXY) / 2;
 
+
+
+			x[2] = (0); //도로 하단의 좌측 
+			y[2] = (MAXY - 1);
+
+			x[3] = (MAXX - 1); //도로 하단의 우측
+			y[3] = (MAXY - 1);
+
+
+
+			x[4] = (0); //도로 하단의 좌측 (보조)
+			y[4] = (MAXY - 1);
+
+			x[5] = (MAXX - 1); //도로 하단의 우측 (보조)
+			y[5] = (MAXY - 1);
+
+			//lineX[0] = x[1] - x[0] - 1;
+			//lineY[0] = y[1];
+
+			//lineX[1] = x[1] - x[0] - 1;
+			//lineY[1] = y[1];
+
+			//midX[0] = x[0] + 3;
+			//midY[0] = y[0];
+			//midX[1] = x[1] - 3;
+			//midY[1] = y[1];
+
+			//midX[2] = (MAXX / 3) * 1 + 3 - 1;
+			//midY[2] = MAXY - 1;
+			//midX[3] = (MAXX / 3) * 2 - 3;
+			//midY[3] = MAXY - 1;
 		}
 
-		print_map();
 
-		//flatClear(); /*   <==   print_map(); 하단에 이동됨. */
-
-		if (delayCount >= delaySpeed)
+		/* 장애물 라인 */
 		{
-			if (layer != 3) // 애니메이션 장 수
-				layer++;
-			else if (layer == 3) // 마지막 애니메이션 장
-				layer = 0;
-			delayCount = 0;
+			//최상단 장애물 라인 flat에서 Y축 중앙, //obsatcleMap에서 Y축 0
+			obstacleLineX[0] = (MAXX / 2) - 2;
+			obstacleLineY[0] = MAXY / 2;
+			obstacleLineX[1] = (MAXX / 2) + 1;
+			obstacleLineY[1] = MAXY / 2;
+
+			//최하단 장애물 라인 flat에서 Y축 최하단, //obstacleMap에서 Y축 최하단
+			obstacleLineX[2] = ((MAXX) / 4) * 1;
+			obstacleLineY[2] = MAXY - 1;
+			obstacleLineX[3] = ((MAXX) / 4) * 3 - 1;
+			obstacleLineY[3] = MAXY - 1;
 		}
-		else
-			delayCount++;
+
+
+		//pre_x = x[2];
+		//pre_y = y[2];
+
+		//playSound();
+		car();
+		CursorView(0);
 	}
+
+	/* 게임 시작후 설정 */
+	{
+		while (TRUE)
+		{
+			color(BLACK, WHITE);
+			moveControl();
+
+			/* 맵 도로 생성 */
+			/*if (x[2] != pre_x || y[2] != pre_y)*/
+			{
+				//flatClear();
+				/* 맵 중앙 도로줄 선잇기 */
+				MAXorMIN(x[0], x[1], y[0], y[1]);
+				lining(&x[0], &x[1], &y[0], &y[1], max_x, min_x, max_y, min_y);
+
+
+				/* 보조선 연결 */
+				MAXorMIN(x[2], x[4], y[2], y[4]);
+				lining(&x[2], &x[4], &y[2], &y[4], max_x, min_x, max_y, min_y);
+
+				MAXorMIN(x[4], x[5], y[4], y[5]);
+				lining(&x[4], &x[5], &y[4], &y[5], max_x, min_x, max_y, min_y);
+
+				MAXorMIN(x[5], x[3], y[5], y[3]);
+				lining(&x[5], &x[3], &y[5], &y[3], max_x, min_x, max_y, min_y);
+
+
+				/*맵 중앙 도로줄 꼭짓점과 하단 도로줄 꼭짓점 연결*/
+
+				/*좌측*/
+				MAXorMIN(x[0], x[2], y[0], y[2]);
+				lining(&x[0], &x[2], &y[0], &y[2], max_x, min_x, max_y, min_y);
+				/*우측*/
+				MAXorMIN(x[1], x[3], y[1], y[3]);
+				//copyMap();
+				lining(&x[1], &x[3], &y[1], &y[3], max_x, min_x, max_y, min_y);
+
+
+
+
+
+
+
+
+
+				//pre_x = x[2];
+				//pre_y = y[2];
+
+
+				//MAXorMIN(midX[0], midX[1], midY[0], midY[1]);
+				//lining(&midX[0], &midX[1], &midY[0], &midY[1], max_x, min_x, max_y, min_y);
+				//MAXorMIN(midX[1], midX[3], midY[1], midY[3]);
+				//lining(&midX[1], &midX[3], &midY[1], &midY[3], max_x, min_x, max_y, min_y);
+				//MAXorMIN(midX[3], midX[2], midY[3], midY[2]);
+				//lining(&midX[3], &midX[2], &midY[3], &midY[2], max_x, min_x, max_y, min_y);
+				//MAXorMIN(midX[2], midX[0], midY[2], midY[0]);
+				//lining(&midX[2], &midX[0], &midY[2], &midY[0], max_x, min_x, max_y, min_y);
+			}
+
+
+			/* 장애물 생성라인 */
+			{
+				MAXorMIN(obstacleLineX[0], obstacleLineX[2], obstacleLineY[0], obstacleLineY[2]);
+				liningOtc(&obstacleLineX[0], &obstacleLineX[2], &obstacleLineY[0], &obstacleLineY[2], max_x, min_x, max_y, min_y);
+
+				MAXorMIN(obstacleLineX[1], obstacleLineX[3], obstacleLineY[1], obstacleLineY[3]);
+				liningOtc(&obstacleLineX[1], &obstacleLineX[3], &obstacleLineY[1], &obstacleLineY[3], max_x, min_x, max_y, min_y);
+
+			}
+
+			print_map();
+
+			//flatClear(); /*   <==   print_map(); 하단에 이동됨. */
+
+			if (delayCount >= delaySpeed)
+			{
+				if (layer != 3) // 애니메이션 장 수
+					layer++;
+				else if (layer == 3) // 마지막 애니메이션 장
+					layer = 0;
+				delayCount = 0;
+			}
+			else
+				delayCount++;
+		}
+	}
+
 }
 
 void color(int bgColor, int textColor)
@@ -495,10 +503,10 @@ int print_map() // FLAT 맵 출력
 		{
 			int check = 0;
 			gotoxy(j * 2 + 20, i + 10);
-			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7))
+			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) // 자동차 범위
 			{
 				if (audi[i - MAXY / 2 + 1][j - MAXX / 2 - 8] == 0)
-					check = 1;
+					check = 1; // 자동차가 있으면 0, 없으면 1
 			}
 			if (!((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) || check == 1)
 			{
@@ -537,41 +545,23 @@ int print_map() // FLAT 맵 출력
 					if (roadForward[layer][i - MAXY / 2][j] == 0 && i >= MAXY / 2)
 						printf("  ");
 				}
-				check = 0;
-			}
-		}
-
-
-	}
-	for (int i = MAXY / 2; i < MAXY - 1; i++)
-	{
-		for (int j = 0; j < MAXX; j++)
-		{
-			int check = 0;
-			gotoxy(j * 2 + 20, i + 10);
-			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7))
-			{
-				if (audi[i - MAXY / 2 + 1][j - MAXX / 2 - 8] == 0)
-					check = 1;
-			}
-			if (!((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) || check == 1)
-			{
-				if (i > MAXY / 2 - 1)
+				if (roadForward[layer][i - MAXY / 2][j] == 1)
 				{
-					if (roadForward[layer][i - MAXY / 2][j] == 1)
-					{
-						if (flat[i][j] == 1)
-							color(GRAY, GRAY);
-						if (flat[i][j] == 0)
-							color(GREEN, GREEN);
-						printf("  ");
-					}
+					if (flat[i][j] == 1)
+						color(GRAY, GRAY);
+					if (flat[i][j] == 0)
+						color(GREEN, GREEN);
+					printf("  ");
 				}
-				check = 0;
+				//if (obstacleFlat[i][j] == 2)
+				//{
+				//	gotoxy(j * 2 + 20, i + 10);
+				//	color(BLUE, BLUE);
+				//	printf("  ");
+				//}
 			}
 		}
 	}
-	color(BLACK, WHITE);
 	printf("\n");
 	flatClear();
 }
@@ -633,6 +623,7 @@ int flatClear() // 클린업
 		for (int j = 0; j < MAXX; j++)
 		{
 			flat[i][j] = 0;
+			obstacleFlat[i][j] = 0;
 		}
 	}
 }
@@ -660,7 +651,7 @@ void CursorView(int show) // 입력 커서 제거
 	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
 }
 
-int roadMove()
+int moveControl()
 {
 	if (kbhit())
 	{
@@ -682,13 +673,15 @@ int roadMove()
 				{
 					x[2] -= LRspeed;
 					x[4] -= LRspeed;
+
 					if (y[3] == 0)
 					{
 						x[3] -= LRspeed;
 					}
-					if (y[3] < MAXY)
+					else if (y[3] < MAXY)
+					{
 						y[3] += LRspeed;
-
+					}
 				}
 				else if (x[2] <= 0)
 				{
@@ -706,12 +699,15 @@ int roadMove()
 				{
 					x[3] += LRspeed;
 					x[5] += LRspeed;
+
 					if (y[2] == 0)
 					{
 						x[2] += LRspeed;
 					}
-					if (y[2] < MAXY)
+					else if (y[2] < MAXY)
+					{
 						y[2] += LRspeed;
+					}
 				}
 				else if (x[3] >= MAXX - 1)
 				{
@@ -729,7 +725,7 @@ int roadMove()
 			gotoxy(MAXX - 5 + 20, MAXY + 10);
 			printf("ESC PRESSED");
 			gotoxy(MAXX - 4 + 20, MAXY + 11);
-			printf("END GAME");
+			printf("GAME OVER");
 			exit(1);
 			break;
 		}
@@ -807,11 +803,11 @@ int car()
 				color(RED, RED);
 				printf("  ");
 				break;
-			case 2: //	2 == car(d_red)
+			case 2: //	2 == car(d_red)    Back light
 				color(D_RED, D_RED);
 				printf("  ");
 				break;
-			case 3: //	3 == dark gray
+			case 3: //	3 == dark gray     Under of Back light
 				color(D_GRAY, D_GRAY);
 				printf("  ");
 				break;
