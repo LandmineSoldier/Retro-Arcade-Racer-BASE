@@ -210,6 +210,18 @@ int main(void)
 
 		/* 장애물 라인 */
 		{
+			////최상단 장애물 라인 flat에서 Y축 중앙, //obsatcleMap에서 Y축 0
+			//obstacleLineX[0] = (MAXX / 2) - 2;
+			//obstacleLineY[0] = MAXY / 2;
+			//obstacleLineX[1] = (MAXX / 2) + 1;
+			//obstacleLineY[1] = MAXY / 2;
+
+			////최하단 장애물 라인 flat에서 Y축 최하단, //obstacleMap에서 Y축 최하단
+			//obstacleLineX[2] = ((MAXX) / 4) * 1;
+			//obstacleLineY[2] = MAXY - 1;
+			//obstacleLineX[3] = ((MAXX) / 4) * 3 - 1;
+			//obstacleLineY[3] = MAXY - 1;
+
 			//최상단 장애물 라인 flat에서 Y축 중앙, //obsatcleMap에서 Y축 0
 			obstacleLineX[0] = (MAXX / 2) - 2;
 			obstacleLineY[0] = MAXY / 2;
@@ -217,9 +229,9 @@ int main(void)
 			obstacleLineY[1] = MAXY / 2;
 
 			//최하단 장애물 라인 flat에서 Y축 최하단, //obstacleMap에서 Y축 최하단
-			obstacleLineX[2] = ((MAXX) / 4) * 1;
+			obstacleLineX[2] = x[2] + (LRspeed * 4);
 			obstacleLineY[2] = MAXY - 1;
-			obstacleLineX[3] = ((MAXX) / 4) * 3 - 1;
+			obstacleLineX[3] = x[3] - (LRspeed * 4);
 			obstacleLineY[3] = MAXY - 1;
 		}
 
@@ -294,12 +306,45 @@ int main(void)
 
 			/* 장애물 생성라인 */
 			{
+				if (y[3] <= MAXY - 1 - (LRspeed)) // y[3] <= 40 - 1 - 4 = 35
+				{
+					if (y[3] == MAXY - 1 - (LRspeed))
+					{
+						obstacleLineX[3] = x[3] - (LRspeed * 3);
+					}
+					else
+					{
+						obstacleLineY[3] = y[3] + LRspeed + 4;
+						obstacleLineX[3] = x[3];
+					}
+				}
+				else
+				{
+					obstacleLineX[3] = x[3] - (LRspeed * 4) - 1;
+				}
+
+				if (y[2] <= MAXY - 1 - (LRspeed))
+				{
+					if (y[2] == MAXY - 1 - (LRspeed))
+					{
+						obstacleLineX[2] = x[2] + (LRspeed * 3);
+					}
+					else
+					{
+						obstacleLineY[2] = y[2] + LRspeed + 4;
+						obstacleLineX[2] = x[2];
+					}
+				}
+				else
+				{
+					obstacleLineX[2] = x[2] + (LRspeed * 4) + 1;
+				}
+
 				MAXorMIN(obstacleLineX[0], obstacleLineX[2], obstacleLineY[0], obstacleLineY[2]);
 				liningOtc(&obstacleLineX[0], &obstacleLineX[2], &obstacleLineY[0], &obstacleLineY[2], max_x, min_x, max_y, min_y);
 
 				MAXorMIN(obstacleLineX[1], obstacleLineX[3], obstacleLineY[1], obstacleLineY[3]);
 				liningOtc(&obstacleLineX[1], &obstacleLineX[3], &obstacleLineY[1], &obstacleLineY[3], max_x, min_x, max_y, min_y);
-
 			}
 
 			print_map();
@@ -553,12 +598,12 @@ int print_map() // FLAT 맵 출력
 						color(GREEN, GREEN);
 					printf("  ");
 				}
-				//if (obstacleFlat[i][j] == 2)
-				//{
-				//	gotoxy(j * 2 + 20, i + 10);
-				//	color(BLUE, BLUE);
-				//	printf("  ");
-				//}
+				if (obstacleFlat[i][j] == 2) // 장애물 코스 표시
+				{
+					gotoxy(j * 2 + 20, i + 10);
+					color(BLUE, BLUE);
+					printf("  ");
+				}
 			}
 		}
 	}
