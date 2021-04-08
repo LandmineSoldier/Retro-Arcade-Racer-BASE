@@ -1,7 +1,7 @@
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <Windows.h>
-#include <WinUser.h> //ÇÊÅÍÅ° »èÁ¦¿ëÀ¸·Î Ãß°¡ ÇßÀ¸³ª º¯°æ¹æ¹ý ÀÇ¹® (±×³É ÀÌ·±°Ô ÀÖÀ¸´Ï °Ë»öÇØ¼­ »ç¿ëÇØº¸¾Æ¶ó)
+#include <WinUser.h> //í•„í„°í‚¤ ì‚­ì œìš©ìœ¼ë¡œ ì¶”ê°€ í–ˆìœ¼ë‚˜ ë³€ê²½ë°©ë²• ì˜ë¬¸ (ê·¸ëƒ¥ ì´ëŸ°ê²Œ ìžˆìœ¼ë‹ˆ ê²€ìƒ‰í•´ì„œ ì‚¬ìš©í•´ë³´ì•„ë¼)
 #include <conio.h>
 #include <mmsystem.h>
 
@@ -26,8 +26,8 @@ int roadAniFrame = 0;
 int roadAniDelaySpeed = 0;
 int roadAniDelayCount = 0;
 
-int flat[MAXY][MAXX] = { 0, }; //¶¥
-int road[4][MAXY / 2][MAXX] = { 0, }; //µµ·Î
+int flat[MAXY][MAXX] = { 0, }; //ë•…
+int road[4][MAXY / 2][MAXX] = { 0, }; //ë„ë¡œ
 
 float max_x = 0, min_x = 0;
 float max_y = 0, min_y = 0;
@@ -58,10 +58,10 @@ char playerCar[NORMAL_IMAGE_SIZE][NORMAL_IMAGE_SIZE] = {
 
 int cloud[6][SCREENSTARTY] = {
 	{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, //
-	{-1,-1,15,15,15,-1,-1,-1,-1,-1}, //  ¡á¡á¡á     
-	{15,15,15,15,15,15,15,15,15,15}, //¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á
-	{15,15,15,15,15,15,15,15,15,15}, //¡á¡á¡á¡á¡á¡á¡á¡á¡á¡á
-	{-1,-1,-1,-1,-1,-1,15,15,15,-1}, //      ¡á¡á¡á 
+	{-1,-1,15,15,15,-1,-1,-1,-1,-1}, //  â– â– â–      
+	{15,15,15,15,15,15,15,15,15,15}, //â– â– â– â– â– â– â– â– â– â– 
+	{15,15,15,15,15,15,15,15,15,15}, //â– â– â– â– â– â– â– â– â– â– 
+	{-1,-1,-1,-1,-1,-1,15,15,15,-1}, //      â– â– â–  
 	{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}  //
 };
 
@@ -84,9 +84,9 @@ void gotoxy(int x, int y)
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, float max_y, float min_y) // x1,y1ÀÇ ÁÂÇ¥¿Í x2,y2ÀÇ ÁÂÇ¥¸¦ ¼±À¸·Î ÀÌÀ½
+void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, float max_y, float min_y) // x1,y1ì˜ ì¢Œí‘œì™€ x2,y2ì˜ ì¢Œí‘œë¥¼ ì„ ìœ¼ë¡œ ì´ìŒ
 {
-	float x, y, a; //ÀÌÀº¼± Áß xÁÂÇ¥, yÁÂÇ¥ ±×¸®°í ±â¿ï±â
+	float x, y, a; //ì´ì€ì„  ì¤‘ xì¢Œí‘œ, yì¢Œí‘œ ê·¸ë¦¬ê³  ê¸°ìš¸ê¸°
 	if (x2 - x1 >= y2 - y1)
 	{
 		for (int i = (int)min_x; i <= (int)max_x; i++)
@@ -172,65 +172,65 @@ void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, fl
 	}
 }
 
-void printMap() // FLAT ¸Ê Ãâ·Â (FLATÀ» ¶¥ÀÌ¶ó ºÎ¸£±â·Î) //¾îÁú¾îÁúÇÏ´Ù
+void printMap() // FLAT ë§µ ì¶œë ¥ (FLATì„ ë•…ì´ë¼ ë¶€ë¥´ê¸°ë¡œ) //ì–´ì§ˆì–´ì§ˆí•˜ë‹¤
 {
-	for (int i = MAXY / 2; i < MAXY - 1; i++) //¶¥ ºÎºÐ¸¸ Ãâ·ÂÇÏ¸é µÇ¹Ç·Î ÁöÆò¼±ÀÇ y°ª ºÎÅÍ
+	for (int i = MAXY / 2; i < MAXY - 1; i++) //ë•… ë¶€ë¶„ë§Œ ì¶œë ¥í•˜ë©´ ë˜ë¯€ë¡œ ì§€í‰ì„ ì˜ yê°’ ë¶€í„°
 	{
 		char isRoad = FALSE;
 		char drawRoadStarted = FALSE;
-		for (int j = 0; j < MAXX; j++) //¶¥ÀÇ °¡·Î ³¡±îÁö
+		for (int j = 0; j < MAXX; j++) //ë•…ì˜ ê°€ë¡œ ëê¹Œì§€
 		{
-			char imageBlankCheck = FALSE; //ÇöÀç Ä¿¼­ ÁÂÇ¥ÀÇ ÇÃ·¹ÀÌ¾î ÀÌ¹ÌÁö °ªÀÌ -1(¹«»ö) ÀÎÁö È®ÀÎÇÔ
-			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY); //Ä¿¼­ ÀÌµ¿
-			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) // ÀÚµ¿Â÷ ¹üÀ§
+			char imageBlankCheck = FALSE; //í˜„ìž¬ ì»¤ì„œ ì¢Œí‘œì˜ í”Œë ˆì´ì–´ ì´ë¯¸ì§€ ê°’ì´ -1(ë¬´ìƒ‰) ì¸ì§€ í™•ì¸í•¨
+			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY); //ì»¤ì„œ ì´ë™
+			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) // ìžë™ì°¨ ë²”ìœ„
 			{
 				if (playerCar[i - MAXY / 2 + 1][j - MAXX / 2 - 8] == BLANK_IMAGE)
-					imageBlankCheck = TRUE; // ÇöÀç Ãâ·Â À§Ä¡°¡ ÇÃ·¹ÀÌ¾î ÀÌ¹ÌÁöÀÇ »ö»óÀÖ´Â °÷¿¡ ÀÖÀ¸¸é °ÅÁþ, ¾øÀ¸¸é Âü
+					imageBlankCheck = TRUE; // í˜„ìž¬ ì¶œë ¥ ìœ„ì¹˜ê°€ í”Œë ˆì´ì–´ ì´ë¯¸ì§€ì˜ ìƒ‰ìƒìžˆëŠ” ê³³ì— ìžˆìœ¼ë©´ ê±°ì§“, ì—†ìœ¼ë©´ ì°¸
 			}
 			if (!((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) || imageBlankCheck == TRUE)
 			{
-				if (flat[i][j] == 0) //µµ·Î¼±ÀÌ ¾Æ´Ò °æ¿ì
+				if (flat[i][j] == 0) //ë„ë¡œì„ ì´ ì•„ë‹ ê²½ìš°
 				{
-					if (isRoad == TRUE) //ÇöÀç Ä¿¼­°¡ µµ·Î À§ ¶ó¸é
+					if (isRoad == TRUE) //í˜„ìž¬ ì»¤ì„œê°€ ë„ë¡œ ìœ„ ë¼ë©´
 					{
-						drawRoadStarted = TRUE; //µµ·Î »öÄ¥ÀÌ µÇ°í ÀÖÀ½À» ¾Ë¸²
-						color(D_GRAY, D_GRAY); //µµ·Î »ö (¾îµÎ¿î È¸»ö)
-						flat[i][j] = 1; //µµ·Î·Î Ã¤¿öÁö´Â °úÁ¤
-						if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ÀÌ°Ç µµ·Î¿¡ È¸»öÀ» ³ÖÀ» °ÍÀÌ³Ä ¹¯´Â°Çµ¥,
-							puts("  ");								  //ÀÌ puts¸¦ Á¦°ÅÇØº¸¸é ´ëÃæ ¹«½¼ ¸»ÀÎÁö ¾Ë ¼ö ÀÖ´Ù.
+						drawRoadStarted = TRUE; //ë„ë¡œ ìƒ‰ì¹ ì´ ë˜ê³  ìžˆìŒì„ ì•Œë¦¼
+						color(D_GRAY, D_GRAY); //ë„ë¡œ ìƒ‰ (ì–´ë‘ìš´ íšŒìƒ‰)
+						flat[i][j] = 1; //ë„ë¡œë¡œ ì±„ì›Œì§€ëŠ” ê³¼ì •
+						if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ì´ê±´ ë„ë¡œì— íšŒìƒ‰ì„ ë„£ì„ ê²ƒì´ëƒ ë¬»ëŠ”ê±´ë°,
+							puts("  ");								  //ì´ putsë¥¼ ì œê±°í•´ë³´ë©´ ëŒ€ì¶© ë¬´ìŠ¨ ë§ì¸ì§€ ì•Œ ìˆ˜ ìžˆë‹¤.
 					}
-					else //µµ·Î°¡ ¾Æ´Ï¸é
+					else //ë„ë¡œê°€ ì•„ë‹ˆë©´
 					{
-						color(D_GREEN, D_GREEN); //ÀÜµð »ö (¾îµÎ¿î ÃÊ·Ï»ö)
-						if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ÀÌ°Ç ÀÜµð¿¡ ÃÊ·Ï»öÀ» ³ÖÀ» °ÍÀÌ³Ä ¹¯´Â°Çµ¥,
-							puts("  "); 							  //ÀÌ puts¸¦ Á¦°ÅÇØº¸¸é ´ëÃæ ¹«½¼ ¸»ÀÎÁö ¾Ë ¼ö ÀÖ´Ù.
+						color(D_GREEN, D_GREEN); //ìž”ë”” ìƒ‰ (ì–´ë‘ìš´ ì´ˆë¡ìƒ‰)
+						if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ì´ê±´ ìž”ë””ì— ì´ˆë¡ìƒ‰ì„ ë„£ì„ ê²ƒì´ëƒ ë¬»ëŠ”ê±´ë°,
+							puts("  "); 							  //ì´ putsë¥¼ ì œê±°í•´ë³´ë©´ ëŒ€ì¶© ë¬´ìŠ¨ ë§ì¸ì§€ ì•Œ ìˆ˜ ìžˆë‹¤.
 					}
 				}
-				else if (flat[i][j] == 1) //ÇöÀç Ä¿¼­°¡ µµ·ÎÀÇ ³¡ÀÌ°Å³ª ½ÃÀÛÀÌ¶ó¸é
+				else if (flat[i][j] == 1) //í˜„ìž¬ ì»¤ì„œê°€ ë„ë¡œì˜ ëì´ê±°ë‚˜ ì‹œìž‘ì´ë¼ë©´
 				{
 					if (j < MAXX - 1 && i > MAXY / 2 && flat[i][j + 1] == 1)
 					{
 						isRoad = FALSE;
 					}
-					if (j < MAXX - 1 && i > MAXY / 2 //ÀÌ°Ç ÁöÆò¼±ÀÇ Á÷¼±À» Á¦¿ÜÇÏ°í ÇÏ¶ó´Â ¸»ÀÌ´Ù.
-						&& flat[i][j + 1] == 0) //µµ·Î°¡ ¾Æ´Ï¶ó¸é
+					if (j < MAXX - 1 && i > MAXY / 2 //ì´ê±´ ì§€í‰ì„ ì˜ ì§ì„ ì„ ì œì™¸í•˜ê³  í•˜ë¼ëŠ” ë§ì´ë‹¤.
+						&& flat[i][j + 1] == 0) //ë„ë¡œê°€ ì•„ë‹ˆë¼ë©´
 					{
-						if (drawRoadStarted == TRUE) //Ä¿¼­°¡ µµ·ÎÀÇ ¼±ÀÎµ¥ Ä¥ÇÏ´Â µµÁß¿¡ ¸¸³µ´Ù¸é »öÄ¥ Áß´Ü
-							isRoad = FALSE;			 //µµ·Î°¡ ³¡³µÀ½À» ¾Ë¸²
-						else						 //Ä¥ÇÏÁö ¾Ê°í ÀÖ¾ú´Ù¸é Ã³À½ ¸¸³µ°ÍÀÌ¹Ç·Î µµ·Î¶ó´Â°É È®ÀÎÇÔ
-							isRoad = TRUE;			 //µµ·Î°¡ ½ÃÀÛµÊÀ» ¾Ë¸²
+						if (drawRoadStarted == TRUE) //ì»¤ì„œê°€ ë„ë¡œì˜ ì„ ì¸ë° ì¹ í•˜ëŠ” ë„ì¤‘ì— ë§Œë‚¬ë‹¤ë©´ ìƒ‰ì¹  ì¤‘ë‹¨
+							isRoad = FALSE;			 //ë„ë¡œê°€ ëë‚¬ìŒì„ ì•Œë¦¼
+						else						 //ì¹ í•˜ì§€ ì•Šê³  ìžˆì—ˆë‹¤ë©´ ì²˜ìŒ ë§Œë‚¬ê²ƒì´ë¯€ë¡œ ë„ë¡œë¼ëŠ”ê±¸ í™•ì¸í•¨
+							isRoad = TRUE;			 //ë„ë¡œê°€ ì‹œìž‘ë¨ì„ ì•Œë¦¼
 					}
-					color(D_GRAY, D_GRAY); //µµ·ÎÀÇ ½ÃÀÛÀÌ°Å³ª ³¡ÀÌ¹Ç·Î »öÀ» µµ·Î»öÀ¸·Î
-					if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ÀÌ°Ç À§¿¡¼­ º¸¾Ò´Ù ½ÃÇÇ ¾Ö´Ï¸ÞÀÌ¼ÇÀ» ÅëÇØ »öÀ» ¹Ù²Ù´Â°Å´Ù
-						puts("  ");								  //ÀÌ°Ç µµ·ÎÀÇ ¼±À» ¾Ö´Ï¸ÞÀÌ¼Ç¿¡ Àû¿ëÇÏ´Â°¡ ¹¯´Â ±¸°£ÀÌ´Ù.
+					color(D_GRAY, D_GRAY); //ë„ë¡œì˜ ì‹œìž‘ì´ê±°ë‚˜ ëì´ë¯€ë¡œ ìƒ‰ì„ ë„ë¡œìƒ‰ìœ¼ë¡œ
+					if (road[roadAniFrame][i - MAXY / 2][j] == 0) //ì´ê±´ ìœ„ì—ì„œ ë³´ì•˜ë‹¤ ì‹œí”¼ ì• ë‹ˆë©”ì´ì…˜ì„ í†µí•´ ìƒ‰ì„ ë°”ê¾¸ëŠ”ê±°ë‹¤
+						puts("  ");								  //ì´ê±´ ë„ë¡œì˜ ì„ ì„ ì• ë‹ˆë©”ì´ì…˜ì— ì ìš©í•˜ëŠ”ê°€ ë¬»ëŠ” êµ¬ê°„ì´ë‹¤.
 				}
-				if (road[roadAniFrame][i - MAXY / 2][j] == 1) //ÇöÀç Ä¿¼­ ÁÂÇ¥°¡ ¾Ö´Ï¸ÞÀÌ¼ÇÀÇ 1¿¡ ÇØ´çÇÑ´Ù¸é
+				if (road[roadAniFrame][i - MAXY / 2][j] == 1) //í˜„ìž¬ ì»¤ì„œ ì¢Œí‘œê°€ ì• ë‹ˆë©”ì´ì…˜ì˜ 1ì— í•´ë‹¹í•œë‹¤ë©´
 				{
-					if (flat[i][j] == 1) //µµ·Î¶ó¸é
-						color(GRAY, GRAY); //È¸»ö
-					if (flat[i][j] == 0) //ÀÜµð¶ó¸é
-						color(GREEN, GREEN); //ÃÊ·Ï»ö
-					puts("  ");//»ö¹Ù²ÞÀ» À§ÇÑ Ãâ·Â
+					if (flat[i][j] == 1) //ë„ë¡œë¼ë©´
+						color(GRAY, GRAY); //íšŒìƒ‰
+					if (flat[i][j] == 0) //ìž”ë””ë¼ë©´
+						color(GREEN, GREEN); //ì´ˆë¡ìƒ‰
+					puts("  ");//ìƒ‰ë°”ê¿ˆì„ ìœ„í•œ ì¶œë ¥
 				}
 			}
 		}
@@ -246,9 +246,9 @@ void background()
 		for (int j = 0; j < MAXX; j++)
 		{
 			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY);
-			putColor(SKYBLUE); //putColor¸¦ ÅëÇØ ÇÏ´Ã»öÀ¸·Î Ä¥ÇÑ´Ù
-							   //putColor´Â gotoxy¿Í color¸¦ µ¿½Ã¿¡ ½ÇÇà °¡´ÉÇÑ ÇÔ¼ö´Ù.
-							   //ÃÖ±Ù¿¡ ¸¸µç ÇÔ¼ö¶ó ¸î¸î ÄÚµå¿¡ ÀÌ°Ô Àû¿ëµÇ¾îÀÖÁö ¾ÊÀ» ¼ö ÀÖ´Ù.
+			putColor(SKYBLUE); //putColorë¥¼ í†µí•´ í•˜ëŠ˜ìƒ‰ìœ¼ë¡œ ì¹ í•œë‹¤
+							   //putColorëŠ” gotoxyì™€ colorë¥¼ ë™ì‹œì— ì‹¤í–‰ ê°€ëŠ¥í•œ í•¨ìˆ˜ë‹¤.
+							   //ìµœê·¼ì— ë§Œë“  í•¨ìˆ˜ë¼ ëª‡ëª‡ ì½”ë“œì— ì´ê²Œ ì ìš©ë˜ì–´ìžˆì§€ ì•Šì„ ìˆ˜ ìžˆë‹¤.
 		}
 	}
 	for (int i = 0; i < MAXY / 2; i++)
@@ -256,15 +256,15 @@ void background()
 		for (int j = 0; j < MAXX; j++)
 		{
 			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY);
-			if ((SCREENSTARTY <= i && i <= 15) && (25 <= j && j < 35)) //±¸¸§ ÁÂÇ¥
+			if ((SCREENSTARTY <= i && i <= 15) && (25 <= j && j < 35)) //êµ¬ë¦„ ì¢Œí‘œ
 			{
-				putColor(cloud[i - SCREENSTARTY][j - 25]); //ÇØ´ç ±¸¸§ ÀÌ¹ÌÁöÀÇ °ªÀ» putColor¸¦ ÅëÇØ Ãâ·ÂÇÑ´Ù.
+				putColor(cloud[i - SCREENSTARTY][j - 25]); //í•´ë‹¹ êµ¬ë¦„ ì´ë¯¸ì§€ì˜ ê°’ì„ putColorë¥¼ í†µí•´ ì¶œë ¥í•œë‹¤.
 			}
-			else if ((4 <= i && i <= 9) && (7 <= j && j < 17)) //±¸¸§ ÁÂÇ¥
+			else if ((4 <= i && i <= 9) && (7 <= j && j < 17)) //êµ¬ë¦„ ì¢Œí‘œ
 			{
 				putColor(cloud[i - 4][j - 7]);
 			}
-			else if ((6 <= i && i <= 11) && (45 <= j && j < 55)) //±¸¸§ ÁÂÇ¥
+			else if ((6 <= i && i <= 11) && (45 <= j && j < 55)) //êµ¬ë¦„ ì¢Œí‘œ
 			{
 				putColor(cloud[i - 6][j - 45]);
 			}
@@ -273,13 +273,13 @@ void background()
 	color(BLACK, WHITE);
 }
 
-int flatClear() // Å¬¸°¾÷
+int flatClear() // í´ë¦°ì—…
 {
 	int blankFlat[MAXY][MAXX] = { 0, };
 	memcpy(flat, blankFlat, sizeof(blankFlat));
 }
 
-void MAXorMIN(float x1, float x2, float  y1, float y2) // x1°ú x2, y1°ú y2ÀÇ ´ë¼Ò °ü°è ¼³Á¤
+void MAXorMIN(float x1, float x2, float  y1, float y2) // x1ê³¼ x2, y1ê³¼ y2ì˜ ëŒ€ì†Œ ê´€ê³„ ì„¤ì •
 {
 	if (x2 >= x1) { max_x = x2; min_x = x1; }
 	else { max_x = x1; min_x = x2; }
@@ -288,7 +288,7 @@ void MAXorMIN(float x1, float x2, float  y1, float y2) // x1°ú x2, y1°ú y2ÀÇ ´ë¼
 	else { max_y = y1; min_y = y2; }
 }
 
-void CursorView(int show) // ÀÔ·Â Ä¿¼­ Á¦°Å
+void CursorView(int show) // ìž…ë ¥ ì»¤ì„œ ì œê±°
 {
 	HANDLE hConsole;
 	CONSOLE_CURSOR_INFO ConsoleCursor;
@@ -300,13 +300,13 @@ void CursorView(int show) // ÀÔ·Â Ä¿¼­ Á¦°Å
 
 void moveControl()
 {
-	if (kbhit()) //Å°º¸µå°¡ ´­·ÈÀ» ¶§¸¸
+	if (kbhit()) //í‚¤ë³´ë“œê°€ ëˆŒë ¸ì„ ë•Œë§Œ
 	{
-		if (GetAsyncKeyState(VK_UP)) //GetAsyncKeyState()¸¦ È°¿ëÇÏ¸é ÀÔ·ÂÇÒ ¶§ ÇÊÅÍÅ° ¾øÀÌ ¹Ù·Î ÀÔ·ÂÀÌ °¡´ÉÇÏ±â¿¡ °ÅÀÇ ÇÊ¼ö´Ù
-			if (roadAniDelaySpeed != 0) //ÀÚµ¿Â÷°¡ µµ·Î¸¦ ´Þ¸®´Â ¹æ½ÄÀº ´Ü¼øÇÏ°Ôµµ µµ·Î ¾Ö´Ï¸ÞÀÌ¼ÇÀ¸·Î ÀÎÇØ ¿òÁ÷ÀÎ´Ù.
-										//±× ¾Ö´Ï¸ÞÀÌ¼Ç ÇÔ¼ö°¡ °ÔÀÓ ÇÁ·¹ÀÓ¿¡ µû¶ó °ÅÀÇ °°Àº ÇÁ·¹ÀÓÀ¸·Î ¿òÁ÷ÀÌ´Âµ¥,
-										//±×·¡¼­ roadAniDelaySpeed °ªÀ» ¿Ã¸®¸é ÀÚµ¿Â÷ÀÇ ¼Ó·ÂÀÌ ³·¾ÆÁø °Í Ã³·³ ´À²¸Áø´Ù.
-										//´ç¿¬È÷ °ªÀÌ 0ÀÌ¸é ÃÖ´ë¼Óµµ°¡ µÈ´Ù.
+		if (GetAsyncKeyState(VK_UP)) //GetAsyncKeyState()ë¥¼ í™œìš©í•˜ë©´ ìž…ë ¥í•  ë•Œ í•„í„°í‚¤ ì—†ì´ ë°”ë¡œ ìž…ë ¥ì´ ê°€ëŠ¥í•˜ê¸°ì— ê±°ì˜ í•„ìˆ˜ë‹¤
+			if (roadAniDelaySpeed != 0) //ìžë™ì°¨ê°€ ë„ë¡œë¥¼ ë‹¬ë¦¬ëŠ” ë°©ì‹ì€ ë‹¨ìˆœí•˜ê²Œë„ ë„ë¡œ ì• ë‹ˆë©”ì´ì…˜ìœ¼ë¡œ ì¸í•´ ì›€ì§ì¸ë‹¤.
+										//ê·¸ ì• ë‹ˆë©”ì´ì…˜ í•¨ìˆ˜ê°€ ê²Œìž„ í”„ë ˆìž„ì— ë”°ë¼ ê±°ì˜ ê°™ì€ í”„ë ˆìž„ìœ¼ë¡œ ì›€ì§ì´ëŠ”ë°,
+										//ê·¸ëž˜ì„œ roadAniDelaySpeed ê°’ì„ ì˜¬ë¦¬ë©´ ìžë™ì°¨ì˜ ì†ë ¥ì´ ë‚®ì•„ì§„ ê²ƒ ì²˜ëŸ¼ ëŠê»´ì§„ë‹¤.
+										//ë‹¹ì—°ížˆ ê°’ì´ 0ì´ë©´ ìµœëŒ€ì†ë„ê°€ ëœë‹¤.
 			{
 				roadAniDelaySpeed--;
 			}
@@ -315,40 +315,40 @@ void moveControl()
 			{
 				roadAniDelaySpeed++;
 			}
-		if (GetAsyncKeyState(VK_RIGHT)) //ÁÂ¿ì ¿òÁ÷ÀÓÀ¸·Î ÀÎÇØ È­¸é ÁÂ¿ì ÇÏ´ÜÀÇ ²ÀÁþÁ¡À» ÀÌµ¿½ÃÄÑ¾ßÇÑ´Ù
+		if (GetAsyncKeyState(VK_RIGHT)) //ì¢Œìš° ì›€ì§ìž„ìœ¼ë¡œ ì¸í•´ í™”ë©´ ì¢Œìš° í•˜ë‹¨ì˜ ê¼­ì§“ì ì„ ì´ë™ì‹œì¼œì•¼í•œë‹¤
 		{
-			if (y[2] > (MAXY / 2 + 3)) //ÀÚµ¿Â÷°¡ ¿ìÃøÀ¸·Î ¿òÁ÷ÀÌ¸é µµ·Î´Â ¿ÞÂÊÀ¸·Î ¿òÁ÷¿©¾ßÇÑ´Ù.
-									   //µû¶ó¼­ ÁÂÃø ÇÏ´Ü ²ÀÁþÁ¡ÀÌ È­¸é¹ÛÀ¸·Î ³ª°¬´Ù¸é ´Ù½Ã È­¸éÀÇ ÃÖ´ëÁöÁ¡¿¡ µÎ°í y°ª¸¸ º¯°æ½ÃÅ²´Ù.
-									   //ÇØ´ç if¹®Àº ±× y°ªÀÌ ³Ê¹« ¿Ã¶ó°¡¸é ¾ÈµÇ¹Ç·Î Á¦ÇÑÀ» µÐ °ÍÀÌ´Ù.
+			if (y[2] > (MAXY / 2 + 3)) //ìžë™ì°¨ê°€ ìš°ì¸¡ìœ¼ë¡œ ì›€ì§ì´ë©´ ë„ë¡œëŠ” ì™¼ìª½ìœ¼ë¡œ ì›€ì§ì—¬ì•¼í•œë‹¤.
+									   //ë”°ë¼ì„œ ì¢Œì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì´ í™”ë©´ë°–ìœ¼ë¡œ ë‚˜ê°”ë‹¤ë©´ ë‹¤ì‹œ í™”ë©´ì˜ ìµœëŒ€ì§€ì ì— ë‘ê³  yê°’ë§Œ ë³€ê²½ì‹œí‚¨ë‹¤.
+									   //í•´ë‹¹ ifë¬¸ì€ ê·¸ yê°’ì´ ë„ˆë¬´ ì˜¬ë¼ê°€ë©´ ì•ˆë˜ë¯€ë¡œ ì œí•œì„ ë‘” ê²ƒì´ë‹¤.
 			{
-				if (x[2] > 0) //¾ÆÁ÷ È­¸é¹ÛÀ¸·Î ³ª°¡Áö ¾Ê¾Ò´Ù¸é
+				if (x[2] > 0) //ì•„ì§ í™”ë©´ë°–ìœ¼ë¡œ ë‚˜ê°€ì§€ ì•Šì•˜ë‹¤ë©´
 				{
-					x[2] -= LRspeed; //µµ·Î ÁÂÃø ÇÏ´Ü ²ÀÁþÁ¡À» ÁÂ¿ì ¿òÁ÷ÀÓÀÇ °ª ¸¸Å­ »©ÁØ´Ù.
-					x[4] -= LRspeed; //µµ·Î ÁÂÃø ÇÏ´Ü º¸Á¶²ÀÁþÁ¡µµ ¸¶Âù°¡Áö (º¸Á¶²ÀÁþÁ¡Àº ¾Æ·¡¿¡ ¼³¸í)
-										//ÀÌ°ÍÀº º¸Á¶²ÀÁþÁ¡ÀÎµ¥, ÇöÀç µµ·Î¸¦ È¸»öÀ¸·Î Ãâ·ÂÇÏ°Ô µµ¿ÍÁÖ´Â ÇÔ¼ö°¡
-										//µµ·Î¼±À» ¸¸³ª¸é ±× ¶§ºÎÅÍ È¸»öÀ» Ä¥ÇÏ°í ´Ù½Ã ¸¸³ª¸é »öÄ¥À» ±×¸¸µÎ´Â ¹æ½ÄÀÌ´Ù.
-										//¸¸¾à º¸Á¶¼± ¾øÀÌ ÁÂÃø ²ÀÁþÁ¡¸¸ yÃàÀÌ º¯°æµÇ¾î ¿Ã¶ó°£´Ù¸é
-										//ÀÚµ¿Â÷°¡ ¿ìÃøÀ¸·Î °£°Ô ¾Æ´Ñ µµ·Î°¡ ¿ÞÂÊÀ¸·Î µé¾î ¿Ã·ÁÁø °ÍÃ³·³ µÈ´Ù.
-										//µû¶ó¼­ º¸Á¶²ÀÁþÁ¡À» ÁÂÃø ÇÏ´Ü¿¡ µÎ°í ÀÌ°ÍÀ» ¿¬°á½ÃÄÑµÎ¸é
-										//»ç´Ù¸®²ÃÀÌ 5°¢ÇüÀÌ µÇ¸é¼­ µµ·ÎÀÇ »öÀÌ ¿ÏÀüÈ÷ Ä¥ÇØÁø´Ù.
-										//ÀÌ·¯ÇÑ ¿ªÇÒÀ» À§ÇØ º¸Á¶²ÀÁþÁ¡Àº ±âÁ¸²ÀÁþÁ¡°ú ÁÂÇ¥°¡ °°À¸³ª y°ªÀº ±×´ë·Î´Ù.
-					if (y[3] < MAXY) //µµ·Î ¿ìÃø ÇÏ´Ü ²ÀÁþÁ¡ÀÇ y°ª ¶ÇÇÑ º¯°æµÇ¾îÀÖÀ» ¼ö ÀÖÀ¸¹Ç·Î ³»·ÁÁÖ´Â ÀÛ¾÷ÀÌ´Ù.
+					x[2] -= LRspeed; //ë„ë¡œ ì¢Œì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì„ ì¢Œìš° ì›€ì§ìž„ì˜ ê°’ ë§Œí¼ ë¹¼ì¤€ë‹¤.
+					x[4] -= LRspeed; //ë„ë¡œ ì¢Œì¸¡ í•˜ë‹¨ ë³´ì¡°ê¼­ì§“ì ë„ ë§ˆì°¬ê°€ì§€ (ë³´ì¡°ê¼­ì§“ì ì€ ì•„ëž˜ì— ì„¤ëª…)
+										//ì´ê²ƒì€ ë³´ì¡°ê¼­ì§“ì ì¸ë°, í˜„ìž¬ ë„ë¡œë¥¼ íšŒìƒ‰ìœ¼ë¡œ ì¶œë ¥í•˜ê²Œ ë„ì™€ì£¼ëŠ” í•¨ìˆ˜ê°€
+										//ë„ë¡œì„ ì„ ë§Œë‚˜ë©´ ê·¸ ë•Œë¶€í„° íšŒìƒ‰ì„ ì¹ í•˜ê³  ë‹¤ì‹œ ë§Œë‚˜ë©´ ìƒ‰ì¹ ì„ ê·¸ë§Œë‘ëŠ” ë°©ì‹ì´ë‹¤.
+										//ë§Œì•½ ë³´ì¡°ì„  ì—†ì´ ì¢Œì¸¡ ê¼­ì§“ì ë§Œ yì¶•ì´ ë³€ê²½ë˜ì–´ ì˜¬ë¼ê°„ë‹¤ë©´
+										//ìžë™ì°¨ê°€ ìš°ì¸¡ìœ¼ë¡œ ê°„ê²Œ ì•„ë‹Œ ë„ë¡œê°€ ì™¼ìª½ìœ¼ë¡œ ë“¤ì–´ ì˜¬ë ¤ì§„ ê²ƒì²˜ëŸ¼ ëœë‹¤.
+										//ë”°ë¼ì„œ ë³´ì¡°ê¼­ì§“ì ì„ ì¢Œì¸¡ í•˜ë‹¨ì— ë‘ê³  ì´ê²ƒì„ ì—°ê²°ì‹œì¼œë‘ë©´
+										//ì‚¬ë‹¤ë¦¬ê¼´ì´ 5ê°í˜•ì´ ë˜ë©´ì„œ ë„ë¡œì˜ ìƒ‰ì´ ì™„ì „ížˆ ì¹ í•´ì§„ë‹¤.
+										//ì´ëŸ¬í•œ ì—­í• ì„ ìœ„í•´ ë³´ì¡°ê¼­ì§“ì ì€ ê¸°ì¡´ê¼­ì§“ì ê³¼ ì¢Œí‘œê°€ ê°™ìœ¼ë‚˜ yê°’ì€ ê·¸ëŒ€ë¡œë‹¤.
+					if (y[3] < MAXY) //ë„ë¡œ ìš°ì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì˜ yê°’ ë˜í•œ ë³€ê²½ë˜ì–´ìžˆì„ ìˆ˜ ìžˆìœ¼ë¯€ë¡œ ë‚´ë ¤ì£¼ëŠ” ìž‘ì—…ì´ë‹¤.
 					{
-						y[3] += LRspeed; //y°ªÀÌ ¿Ã¶ó°¡¸é¼­ È­¸éÀÇ ¾Æ·§ÂÊÀ¸·Î ÀÌµ¿µÈ´Ù.
+						y[3] += LRspeed; //yê°’ì´ ì˜¬ë¼ê°€ë©´ì„œ í™”ë©´ì˜ ì•„ëž«ìª½ìœ¼ë¡œ ì´ë™ëœë‹¤.
 					}
 				}
-				else if (x[2] <= 0) //ÁÂÃøÇÏ´Ü ²ÀÁþÁ¡ÀÌ È­¸é¹ÛÀ¸·Î ³ª°£´Ù¸é
+				else if (x[2] <= 0) //ì¢Œì¸¡í•˜ë‹¨ ê¼­ì§“ì ì´ í™”ë©´ë°–ìœ¼ë¡œ ë‚˜ê°„ë‹¤ë©´
 				{
-					x[2] = 0; //µµ·Î ÁÂÃø ÇÏ´Ü ²ÀÁþÁ¡Àº 0À¸·Î °íÁ¤ÇØÁØ´Ù
-					x[3] -= LRspeed; //µµ·Î ¿ìÃø ÇÏ´Ü ²ÀÁþÁ¡Àº LRspeed¸¸Å­ ÁÂÃøÀ¸·Î ¿Å°ÜÁØ´Ù
-					x[5] -= LRspeed; //µµ·Î ¿ìÃø ÇÏ´Ü º¸Á¶²ÀÁþÁ¡ ¶ÇÇÑ ÇÔ²² ¿òÁ÷ÀÎ´Ù.
-					y[2] -= LRspeed; //È­¸é¹ÛÀ¸·Î ³ª°¡¹Ç·Î µµ·Î ÁÂÃø ÇÏ´Ü ²ÀÁþÁ¡ÀÇ y°ªÀ» º¯°æÇÑ´Ù.
+					x[2] = 0; //ë„ë¡œ ì¢Œì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì€ 0ìœ¼ë¡œ ê³ ì •í•´ì¤€ë‹¤
+					x[3] -= LRspeed; //ë„ë¡œ ìš°ì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì€ LRspeedë§Œí¼ ì¢Œì¸¡ìœ¼ë¡œ ì˜®ê²¨ì¤€ë‹¤
+					x[5] -= LRspeed; //ë„ë¡œ ìš°ì¸¡ í•˜ë‹¨ ë³´ì¡°ê¼­ì§“ì  ë˜í•œ í•¨ê»˜ ì›€ì§ì¸ë‹¤.
+					y[2] -= LRspeed; //í™”ë©´ë°–ìœ¼ë¡œ ë‚˜ê°€ë¯€ë¡œ ë„ë¡œ ì¢Œì¸¡ í•˜ë‹¨ ê¼­ì§“ì ì˜ yê°’ì„ ë³€ê²½í•œë‹¤.
 					
-					//y4´Â º¸Á¶²ÀÁþÁ¡ ¿ªÇÒÀÌ±â¿¡ y2¿Í ÇÔ²² ¿òÁ÷ÀÌÁö ¾Ê°í ±×´ë·Î ³²¾ÆÀÖ´Â´Ù.
+					//y4ëŠ” ë³´ì¡°ê¼­ì§“ì  ì—­í• ì´ê¸°ì— y2ì™€ í•¨ê»˜ ì›€ì§ì´ì§€ ì•Šê³  ê·¸ëŒ€ë¡œ ë‚¨ì•„ìžˆëŠ”ë‹¤.
 				}
 			}
 		}
-		if (GetAsyncKeyState(VK_LEFT)) //¿©±âµµ À§¿Í ºñ½ÁÇÏ´Ù.
+		if (GetAsyncKeyState(VK_LEFT)) //ì—¬ê¸°ë„ ìœ„ì™€ ë¹„ìŠ·í•˜ë‹¤.
 		{
 			if (y[3] > (MAXY / 2 + 3))
 			{
@@ -370,11 +370,11 @@ void moveControl()
 				}
 			}
 		}
-		if (GetAsyncKeyState(VK_SPACE)) //½ºÆäÀÌ½º¹Ù´Â ºê·¹ÀÌÅ© ±â´ÉÀ» ÇÑ´Ù.
-			roadAniDelayCount = -1;		//roadAniDelayCount¸¦ ¿Ö ´Ã¸®Áö ¾Ê°í ÁÙÀÌ³Ä¸é
-										//roadAniDelaySpeedº¸´Ù °ªÀÌ Å« °æ¿ì¿¡¸¸ ½ÇÇàµÇµµ·Ï µÇ¾îÀÖ´Âµ¥,
-										//-1ÀÌ¸é speedº¸´Ù ´õ ³·±â ¶§¹®¿¡ ÇÔ¼ö°¡ ½ÇÇàµÇÁö ¾ÊÀ¸¹Ç·Î ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ °íÁ¤µÈ´Ù.
-		if (GetAsyncKeyState(VK_ESCAPE)) //esc´­·¯¼­ °ÔÀÓ ²ô´Â¿ëµµ
+		if (GetAsyncKeyState(VK_SPACE)) //ìŠ¤íŽ˜ì´ìŠ¤ë°”ëŠ” ë¸Œë ˆì´í¬ ê¸°ëŠ¥ì„ í•œë‹¤.
+			roadAniDelayCount = -1;		//roadAniDelayCountë¥¼ ì™œ ëŠ˜ë¦¬ì§€ ì•Šê³  ì¤„ì´ëƒë©´
+										//roadAniDelaySpeedë³´ë‹¤ ê°’ì´ í° ê²½ìš°ì—ë§Œ ì‹¤í–‰ë˜ë„ë¡ ë˜ì–´ìžˆëŠ”ë°,
+										//-1ì´ë©´ speedë³´ë‹¤ ë” ë‚®ê¸° ë•Œë¬¸ì— í•¨ìˆ˜ê°€ ì‹¤í–‰ë˜ì§€ ì•Šìœ¼ë¯€ë¡œ ì• ë‹ˆë©”ì´ì…˜ì´ ê³ ì •ëœë‹¤.
+		if (GetAsyncKeyState(VK_ESCAPE)) //escëˆŒëŸ¬ì„œ ê²Œìž„ ë„ëŠ”ìš©ë„
 		{
 			DebugText("GAME OFF...");
 			gotoxy(MAXX - 5 + SCREENSTARTX, MAXY + SCREENSTARTY);
@@ -389,8 +389,8 @@ void moveControl()
 void roadDownAnimation()
 {
 	char roadMoveScene[4][MAXY / 2] = {
-		{0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1}, //1ÀÌ »öÀ» ¹Ù²Ù¶ó´Â °Å´Ù
-		{1,0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1}, //ÀÌ ³»¿ëÀ» ¹Ù²Ù¾î º¸¸é ¾î¶² ¿ø¸®ÀÎÁö °¡´ÆÇÒ ¼ö ÀÖÀ» °ÍÀÌ´Ù.
+		{0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1}, //1ì´ ìƒ‰ì„ ë°”ê¾¸ë¼ëŠ” ê±°ë‹¤
+		{1,0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1}, //ì´ ë‚´ìš©ì„ ë°”ê¾¸ì–´ ë³´ë©´ ì–´ë–¤ ì›ë¦¬ì¸ì§€ ê°€ëŠ í•  ìˆ˜ ìžˆì„ ê²ƒì´ë‹¤.
 		{1,0,0,1,1,1,0,0,0,0,1,1,1,1,1,0,0,0,0,0},
 		{0,1,0,0,1,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0}
 	};
@@ -429,19 +429,19 @@ void playSound()
 		PlaySound(TEXT(breakSound), NULL, SND_FILENAME | SND_ASYNC);
 		break;
 	}*/
-	//»ç¿îµå ÆÄÀÏ À§Ä¡, SND_ASYNC, SND_LOOP ¼¼°¡Áö°¡ Á¦ÀÏ Áß¿ä
-	//SND_ASYNC : Àç»ýÇÏ¸é¼­ ´ÙÀ½ÄÚµå ½ÇÇà
-	//SND_LOOP : ¹Ýº¹Àç»ý
+	//ì‚¬ìš´ë“œ íŒŒì¼ ìœ„ì¹˜, SND_ASYNC, SND_LOOP ì„¸ê°€ì§€ê°€ ì œì¼ ì¤‘ìš”
+	//SND_ASYNC : ìž¬ìƒí•˜ë©´ì„œ ë‹¤ìŒì½”ë“œ ì‹¤í–‰
+	//SND_LOOP : ë°˜ë³µìž¬ìƒ
 	//while (1)
 	//{
 	//	int a;
-	//	printf("Á¾·á?");
+	//	printf("ì¢…ë£Œ?");
 	//	scanf("%d", &a);
 	//	if (a == 0)
 	//	{
 	//		PlaySound(NULL, 0, 0);
 	//		Sleep(1000);
-	//		printf("³ë·¡¸¦ Á¾·áÇß½À´Ï´Ù. ÇÔ¼öµµ Á¾·áÇÕ´Ï´Ù.");
+	//		printf("ë…¸ëž˜ë¥¼ ì¢…ë£Œí–ˆìŠµë‹ˆë‹¤. í•¨ìˆ˜ë„ ì¢…ë£Œí•©ë‹ˆë‹¤.");
 	//		return;
 	//	}
 	//}
@@ -466,81 +466,81 @@ int putColor(int _color)
 
 void roadAnimation()
 {
-	if (roadAniDelayCount >= roadAniDelaySpeed) //speed°¡ 0¿¡ °¡±î¿ï ¼ö·Ï È£Ãâ ºóµµ°¡ ³ô¾ÆÁø´Ù.
+	if (roadAniDelayCount >= roadAniDelaySpeed) //speedê°€ 0ì— ê°€ê¹Œìš¸ ìˆ˜ë¡ í˜¸ì¶œ ë¹ˆë„ê°€ ë†’ì•„ì§„ë‹¤.
 	{
-		if (roadAniFrame != 3) // ¾Ö´Ï¸ÞÀÌ¼Ç Àå ¼ö
+		if (roadAniFrame != 3) // ì• ë‹ˆë©”ì´ì…˜ ìž¥ ìˆ˜
 			roadAniFrame++;
-		else if (roadAniFrame == 3) // ¸¶Áö¸· ¾Ö´Ï¸ÞÀÌ¼Ç Àå
+		else if (roadAniFrame == 3) // ë§ˆì§€ë§‰ ì• ë‹ˆë©”ì´ì…˜ ìž¥
 			roadAniFrame = 0;
 		roadAniDelayCount = 0;
 	}
 	else
-		roadAniDelayCount++; //ÀÌ°Ô speed¿Í ¼Óµµ°¡ ÀÏÄ¡ÇÒ ¶§ ¸¶´Ù ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ ½ÇÇàµÈ´Ù.
+		roadAniDelayCount++; //ì´ê²Œ speedì™€ ì†ë„ê°€ ì¼ì¹˜í•  ë•Œ ë§ˆë‹¤ ì• ë‹ˆë©”ì´ì…˜ì´ ì‹¤í–‰ëœë‹¤.
 }
 
 void gameSettingReady()
 {
-	system("mode con:lines=61  cols=141"); //ÄÜ¼ÖÃ¢ ¼¼·Î, °¡·Î Á¶Á¤ (ÀÌ¸¦ »ç¿ëÇÏ¸é ¿ìÃøÀÇ ½½¶óÀÌµå¹Ù°¡ »ç¶óÁø´Ù.)
+	system("mode con:lines=61  cols=141"); //ì½˜ì†”ì°½ ì„¸ë¡œ, ê°€ë¡œ ì¡°ì • (ì´ë¥¼ ì‚¬ìš©í•˜ë©´ ìš°ì¸¡ì˜ ìŠ¬ë¼ì´ë“œë°”ê°€ ì‚¬ë¼ì§„ë‹¤.)
 
-	fullScreen(); //ÀüÃ¼È­¸é
-	Sleep(100); //fullScreen()Àº Àû¿ëµÇ´Âµ¥¿¡ Á¶±Ý ´À¸®´Ù. µû¶ó¼­ Àû¿ëµÇ´Â ½Ã°£À» ÁÖ±â À§ÇØ 100 ¹Ð¸®¼¼ÄÁµå¸¦ ±â´Ù·Á ÁØ´Ù.
-	roadDownAnimation(); //µµ·Î ¾Ö´Ï¸ÞÀÌ¼Ç ¼³Á¤
-	background(); //¹è°æ ±×¸®±â (ÇÏ´Ã ¹× ±¸¸§)
+	fullScreen(); //ì „ì²´í™”ë©´
+	Sleep(100); //fullScreen()ì€ ì ìš©ë˜ëŠ”ë°ì— ì¡°ê¸ˆ ëŠë¦¬ë‹¤. ë”°ë¼ì„œ ì ìš©ë˜ëŠ” ì‹œê°„ì„ ì£¼ê¸° ìœ„í•´ 100 ë°€ë¦¬ì„¸ì»¨ë“œë¥¼ ê¸°ë‹¤ë ¤ ì¤€ë‹¤.
+	roadDownAnimation(); //ë„ë¡œ ì• ë‹ˆë©”ì´ì…˜ ì„¤ì •
+	background(); //ë°°ê²½ ê·¸ë¦¬ê¸° (í•˜ëŠ˜ ë° êµ¬ë¦„)
 
-	/* µµ·Î */
+	/* ë„ë¡œ */
 	{
 		/*
-		 *	Á¡°ú Á¡À» ±â¿ï±â¸¦ ÅëÇØ ÀÕ´Â °ÍÀ» È°¿ëÇØº¸°í ½Í¾î ÀÌ·¸°Ô ¸¸µé¾îÁü...
-		 *	±×·¡¼­ ÁöÆò¼±ÀÇ Áß¾ÓÂë µÇ´Â À§Ä¡¿Í È­¸é ÁÂ¿ì ÇÏ´Ü¿¡ Á¡À» µÎ°í ¼±À¸·Î ÀÌÀº ÈÄ ³»ºÎ¸¦ Ã¤¿ì´Â ¹æ½ÄÀÌ´Ù.
-		 *	±×·Î ÀÎÇØ ½Å°æ½á¾ßÇÒ ºÎºÐÀÌ ±²ÀåÈ÷ ¸¹¾ÆÁö°í ºñÈ¿À²ÀûÀÌ°Ô µÇ¾ú´Ù.
-		 *	±×´ëµéÀº ÀÌ·± ¸ÛÃ»ÇÑ ÁþÀ» ¹Ýº¹ÇÏÁö¸¶½Ã¿À..
+		 *	ì ê³¼ ì ì„ ê¸°ìš¸ê¸°ë¥¼ í†µí•´ ìž‡ëŠ” ê²ƒì„ í™œìš©í•´ë³´ê³  ì‹¶ì–´ ì´ë ‡ê²Œ ë§Œë“¤ì–´ì§...
+		 *	ê·¸ëž˜ì„œ ì§€í‰ì„ ì˜ ì¤‘ì•™ì¯¤ ë˜ëŠ” ìœ„ì¹˜ì™€ í™”ë©´ ì¢Œìš° í•˜ë‹¨ì— ì ì„ ë‘ê³  ì„ ìœ¼ë¡œ ì´ì€ í›„ ë‚´ë¶€ë¥¼ ì±„ìš°ëŠ” ë°©ì‹ì´ë‹¤.
+		 *	ê·¸ë¡œ ì¸í•´ ì‹ ê²½ì¨ì•¼í•  ë¶€ë¶„ì´ êµ‰ìž¥ížˆ ë§Žì•„ì§€ê³  ë¹„íš¨ìœ¨ì ì´ê²Œ ë˜ì—ˆë‹¤.
+		 *	ê·¸ëŒ€ë“¤ì€ ì´ëŸ° ë©ì²­í•œ ì§“ì„ ë°˜ë³µí•˜ì§€ë§ˆì‹œì˜¤..
 		*/
-		//ÁöÆò¼±ÀÇ ÁÂÃø µµ·Î ²ÀÁþÁ¡
+		//ì§€í‰ì„ ì˜ ì¢Œì¸¡ ë„ë¡œ ê¼­ì§“ì 
 		x[0] = (MAXX - 5) / 2; 
 		y[0] = (MAXY) / 2;
-		//ÁöÆò¼±ÀÇ ¿ìÃø µµ·Î ²ÀÁþÁ¡
+		//ì§€í‰ì„ ì˜ ìš°ì¸¡ ë„ë¡œ ê¼­ì§“ì 
 		x[1] = (MAXX + 5) / 2; 
 		y[1] = (MAXY) / 2;
 
-		//µµ·Î ÇÏ´ÜÀÇ ÁÂÃø ²ÀÁþÁ¡
+		//ë„ë¡œ í•˜ë‹¨ì˜ ì¢Œì¸¡ ê¼­ì§“ì 
 		x[2] = (0);
 		y[2] = (MAXY - 1);
-		//µµ·Î ÇÏ´ÜÀÇ ¿ìÃø ²ÀÁþÁ¡
+		//ë„ë¡œ í•˜ë‹¨ì˜ ìš°ì¸¡ ê¼­ì§“ì 
 		x[3] = (MAXX - 1); 
 		y[3] = (MAXY - 1);
 
-		//µµ·Î ÇÏ´ÜÀÇ ÁÂÃø (º¸Á¶) : ÀÌ´Â µµ·Î°¡ È­¸é ¹üÀ§¸¦ ¹þ¾î³¯ ½Ã ²ª¾îÁÙ ¶§ µµ¿òÀ» ÁØ´Ù.
+		//ë„ë¡œ í•˜ë‹¨ì˜ ì¢Œì¸¡ (ë³´ì¡°) : ì´ëŠ” ë„ë¡œê°€ í™”ë©´ ë²”ìœ„ë¥¼ ë²—ì–´ë‚  ì‹œ êº¾ì–´ì¤„ ë•Œ ë„ì›€ì„ ì¤€ë‹¤.
 		x[4] = (0);
 		y[4] = (MAXY - 1);
-		//µµ·Î ÇÏ´ÜÀÇ ¿ìÃø (º¸Á¶) : ÀÌ´Â µµ·Î°¡ È­¸é ¹üÀ§¸¦ ¹þ¾î³¯ ½Ã ²ª¾îÁÙ ¶§ µµ¿òÀ» ÁØ´Ù.
+		//ë„ë¡œ í•˜ë‹¨ì˜ ìš°ì¸¡ (ë³´ì¡°) : ì´ëŠ” ë„ë¡œê°€ í™”ë©´ ë²”ìœ„ë¥¼ ë²—ì–´ë‚  ì‹œ êº¾ì–´ì¤„ ë•Œ ë„ì›€ì„ ì¤€ë‹¤.
 		x[5] = (MAXX - 1); 
 		y[5] = (MAXY - 1);
 	}
 
-	playSound(runSound); //¹è°æÀ½¾Ç Ãâ·Â (playSound()°¡ µÎ°¡Áö À½¾ÇÀ» Æ®´Â°Ç ¾ÈµÇ´õ¶ó)
-	car(); //ÀÚµ¿Â÷ Ãâ·Â
-	CursorView(0); //Ä¿¼­ Á¦°Å
+	playSound(runSound); //ë°°ê²½ìŒì•… ì¶œë ¥ (playSound()ê°€ ë‘ê°€ì§€ ìŒì•…ì„ íŠ¸ëŠ”ê±´ ì•ˆë˜ë”ë¼)
+	car(); //ìžë™ì°¨ ì¶œë ¥
+	CursorView(0); //ì»¤ì„œ ì œê±°
 }
 
 void gamePlaying()
 {
-	while (TRUE) //°ÔÀÓÀÌ ½ÇÇàµÇ´Â µ¿¾È ¹«ÇÑ·çÇÁ
+	while (TRUE) //ê²Œìž„ì´ ì‹¤í–‰ë˜ëŠ” ë™ì•ˆ ë¬´í•œë£¨í”„
 	{
-		color(BLACK, WHITE); //À¯Àú Á¶ÀÛ °¡´É ÀÌÀü¿¡ ÇÏ´ÃÀ» Ãâ·ÂÇÏ´Âµ¥ ÇØ´ç Ä¿¼­ À§Ä¡¿¡ ÇÏ´Ã»öÀÌ ³²¾ÆÀÖÀ» ¼ö ÀÖÀ¸¹Ç·Î ±âº»°ªÀ¸·Î Á¶Á¤
-		moveControl(); //À¯Àú Á¶ÀÛ
+		color(BLACK, WHITE); //ìœ ì € ì¡°ìž‘ ê°€ëŠ¥ ì´ì „ì— í•˜ëŠ˜ì„ ì¶œë ¥í•˜ëŠ”ë° í•´ë‹¹ ì»¤ì„œ ìœ„ì¹˜ì— í•˜ëŠ˜ìƒ‰ì´ ë‚¨ì•„ìžˆì„ ìˆ˜ ìžˆìœ¼ë¯€ë¡œ ê¸°ë³¸ê°’ìœ¼ë¡œ ì¡°ì •
+		moveControl(); //ìœ ì € ì¡°ìž‘
 
-		/* ¸Ê µµ·Î °è¼Ó ¾÷µ¥ÀÌÆ® */
+		/* ë§µ ë„ë¡œ ê³„ì† ì—…ë°ì´íŠ¸ */
 		{
-			//ÀÌ°É ÇØÁÖÁö ¾Ê´Â´Ù¸é µµ·Î°¡ Ãâ·ÂµÇÁö ¾Ê´Â´Ù.
+			//ì´ê±¸ í•´ì£¼ì§€ ì•ŠëŠ”ë‹¤ë©´ ë„ë¡œê°€ ì¶œë ¥ë˜ì§€ ì•ŠëŠ”ë‹¤.
 
-			/* ¸Ê ÁöÆò¼± µµ·Î³¡ ÁÙ ¼±ÀÕ±â */
+			/* ë§µ ì§€í‰ì„  ë„ë¡œë ì¤„ ì„ ìž‡ê¸° */
 			MAXorMIN(x[0], x[1], y[0], y[1]);
 			lining(x[0], x[1], y[0], y[1], max_x, min_x, max_y, min_y);
 			//MaxMinLining(x[0], x[1], y[0], y[1], max_x, min_x, max_y, min_y);
-			//MaxMinLiningÀ» ÅëÇØ MaxorMin°ú liningÀ» µ¿½Ã¿¡ Ã³¸®ÇÏ·Á°í ÇßÀ¸³ª... ºñÁÖ¾ó ½ºÆ©µð¿À°¡ ÄÄÆÄÀÏÇÏ´Âµ¥ ¹®Á¦°¡ »ý°Ü ÇÏÁö ¸øÇÏ¿´´Ù.
+			//MaxMinLiningì„ í†µí•´ MaxorMinê³¼ liningì„ ë™ì‹œì— ì²˜ë¦¬í•˜ë ¤ê³  í–ˆìœ¼ë‚˜... ë¹„ì£¼ì–¼ ìŠ¤íŠœë””ì˜¤ê°€ ì»´íŒŒì¼í•˜ëŠ”ë° ë¬¸ì œê°€ ìƒê²¨ í•˜ì§€ ëª»í•˜ì˜€ë‹¤.
 
 
-			/* º¸Á¶¼± ¿¬°á */
+			/* ë³´ì¡°ì„  ì—°ê²° */
 			MAXorMIN(x[2], x[4], y[2], y[4]);
 			lining(x[2], x[4], y[2], y[4], max_x, min_x, max_y, min_y);
 
@@ -551,17 +551,17 @@ void gamePlaying()
 			lining(x[5], x[3], y[5], y[3], max_x, min_x, max_y, min_y);
 
 
-			/*µµ·Î ¾ç ³¡ ²ÀÁþÁ¡°ú ÇÏ´Ü µµ·ÎÁÙ ²ÀÁþÁ¡ ¿¬°á*/
+			/*ë„ë¡œ ì–‘ ë ê¼­ì§“ì ê³¼ í•˜ë‹¨ ë„ë¡œì¤„ ê¼­ì§“ì  ì—°ê²°*/
 
-			/*ÁÂÃø*/
+			/*ì¢Œì¸¡*/
 			MAXorMIN(x[0], x[2], y[0], y[2]);
 			lining(x[0], x[2], y[0], y[2], max_x, min_x, max_y, min_y);
-			/*¿ìÃø*/
+			/*ìš°ì¸¡*/
 			MAXorMIN(x[1], x[3], y[1], y[3]);
 			lining(x[1], x[3], y[1], y[3], max_x, min_x, max_y, min_y);
 		}
 
-		printMap(); //¶¥À» Ãâ·ÂÇÏ´Â ¿ëµµ´Ù (FLAT Ãâ·Â)
+		printMap(); //ë•…ì„ ì¶œë ¥í•˜ëŠ” ìš©ë„ë‹¤ (FLAT ì¶œë ¥)
 		roadAnimation();
 	}
 }
@@ -594,13 +594,11 @@ int DebugFloat(float num)
 
 int main(void)
 {
-	/* °ÔÀÓ ½ÃÀÛÀü ¼³Á¤ */
-	DebugText("SETTING..."); //Àß ÀÛµ¿ µÇ´ÂÁö È®ÀÎÇÏ´Â ¿ëµµ·Î ÁÂÃø »ó´Ü¿¡ ÅØ½ºÆ® Ãâ·Â
-	gameSettingReady(); //À¯Àú°¡ Á¶ÀÛÇÏ±â Àü¿¡ ¼³Á¤ÇØ¾ßÇÒ ³»¿ëµé
+	/* ê²Œìž„ ì‹œìž‘ì „ ì„¤ì • */
+	DebugText("SETTING..."); //ìž˜ ìž‘ë™ ë˜ëŠ”ì§€ í™•ì¸í•˜ëŠ” ìš©ë„ë¡œ ì¢Œì¸¡ ìƒë‹¨ì— í…ìŠ¤íŠ¸ ì¶œë ¥
+	gameSettingReady(); //ìœ ì €ê°€ ì¡°ìž‘í•˜ê¸° ì „ì— ì„¤ì •í•´ì•¼í•  ë‚´ìš©ë“¤
 
-	/* °ÔÀÓ µ¿ÀÛ */
-	DebugText("PLAYING..."); //Àß ÀÛµ¿ µÇ´ÂÁö È®ÀÎÇÏ´Â ¿ëµµ·Î ÁÂÃø »ó´Ü¿¡ ÅØ½ºÆ® Ãâ·Â
-	gamePlaying(); //À¯ÀúÀÇ Á¶ÀÛ ¹× °°ÀÌ ½ÇÇàµÇ¾î¾ß ÇÏ´Â ³»¿ëµé
+	/* ê²Œìž„ ë™ìž‘ */
+	DebugText("PLAYING..."); //ìž˜ ìž‘ë™ ë˜ëŠ”ì§€ í™•ì¸í•˜ëŠ” ìš©ë„ë¡œ ì¢Œì¸¡ ìƒë‹¨ì— í…ìŠ¤íŠ¸ ì¶œë ¥
+	gamePlaying(); //ìœ ì €ì˜ ì¡°ìž‘ ë° ê°™ì´ ì‹¤í–‰ë˜ì–´ì•¼ í•˜ëŠ” ë‚´ìš©ë“¤
 }
-
-//nabilera1@naver.com
