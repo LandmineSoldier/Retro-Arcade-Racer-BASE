@@ -14,14 +14,14 @@ C언어로 고전 레이싱게임 베이스
 
 backslash must be entered twice.
 
-(NO)   C:\Users\user\Desktop\RaceGameSound\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav
+(NO)   "./Sound\8-Bit-Fantasy-Racing-Music.wav"
 
-(YES)  C:\\Users\\user\\Desktop\\RaceGameSound\\y2mate.com-8-Bit-Fantasy-Racing-Music_AKQPbjzMJvw.wav
+(YES)  "./Sound\\8-Bit-Fantasy-Racing-Music.wav"
 
 
-하지만 wav 파일만 지원합니다.
+wav 파일만 지원합니다.
 
-But it only supports wav files.
+only supports wav files.
 
 만약 wav 파일이 없다면 main 안에 있는 'playSound();' 를 주석처리 해주세요
 
