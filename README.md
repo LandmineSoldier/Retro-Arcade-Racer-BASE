@@ -4,9 +4,9 @@ C언어로 고전 레이싱게임 베이스
 <C_Racer.c 가 불필요한 요소를 다 없앤 코드입니다.>
 
 
-#define Third_Run "여기에 곡 파일의 주소를 입력"
+#define runSound "여기에 곡 파일의 주소를 입력"
 
-#define Third_Run "Write your song file address"
+#define runSound "Write your song file address"
 
 
 
