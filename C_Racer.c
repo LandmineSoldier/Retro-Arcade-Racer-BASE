@@ -1,7 +1,7 @@
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <Windows.h>
-#include <WinUser.h> //필터키 삭제용으로 추가 했으나 변경방법 의문 (그냥 이런게 있으니 검색해서 사용해보아라)
+//#include <WinUser.h> //필터키 삭제용으로 추가 했으나 변경방법 의문 (그냥 이런게 있으니 검색해서 사용해보아라)
 #include <conio.h>
 #include <mmsystem.h>
 
@@ -12,10 +12,13 @@
 //#define RIGHT 77
 //#define DOWN 80
 
+#define TRUE 1
+#define FALSE 0
+
 #define MAXY 40
 #define MAXX 60
-#define SCREENSTARTX 20
-#define SCREENSTARTY 10
+#define SCREENSTARTX 20 //20
+#define SCREENSTARTY 10 //10
 
 #define BLANK_IMAGE -1
 #define NORMAL_IMAGE_SIZE 16
@@ -56,7 +59,7 @@ char playerCar[NORMAL_IMAGE_SIZE][NORMAL_IMAGE_SIZE] = {
 	{ 0, 0, 0, 0,-1,-1,-1,-1,-1,-1,-1,-1, 0, 0, 0, 0}
 };
 
-int cloud[6][SCREENSTARTY] = {
+int cloud[6][10] = {
 	{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}, //
 	{-1,-1,15,15,15,-1,-1,-1,-1,-1}, //  ■■■     
 	{15,15,15,15,15,15,15,15,15,15}, //■■■■■■■■■■
@@ -75,13 +78,16 @@ enum colorName
 
 void color(int bgColor, int textColor)
 {
+	//printf("\x1B[%dm", bgColor);
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), bgColor * 16 + textColor);
 }
 
 void gotoxy(int x, int y)
 {
-	COORD pos = { x,y };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	//COORD pos = { x,y };
+	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+	printf("\033[%d;%df", y, x);
+	fflush(stdout);
 }
 
 void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, float max_y, float min_y) // x1,y1의 좌표와 x2,y2의 좌표를 선으로 이음
@@ -256,9 +262,9 @@ void background()
 		for (int j = 0; j < MAXX; j++)
 		{
 			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY);
-			if ((SCREENSTARTY <= i && i <= 15) && (25 <= j && j < 35)) //구름 좌표
+			if ((10 <= i && i <= 15) && (25 <= j && j < 35)) //구름 좌표
 			{
-				putColor(cloud[i - SCREENSTARTY][j - 25]); //해당 구름 이미지의 값을 putColor를 통해 출력한다.
+				putColor(cloud[i - 10][j - 25]); //해당 구름 이미지의 값을 putColor를 통해 출력한다.
 			}
 			else if ((4 <= i && i <= 9) && (7 <= j && j < 17)) //구름 좌표
 			{
@@ -376,12 +382,7 @@ void moveControl()
 										//-1이면 speed보다 더 낮기 때문에 함수가 실행되지 않으므로 애니메이션이 고정된다.
 		if (GetAsyncKeyState(VK_ESCAPE)) //esc눌러서 게임 끄는용도
 		{
-			DebugText("GAME OFF...");
-			gotoxy(MAXX - 5 + SCREENSTARTX, MAXY + SCREENSTARTY);
-			puts("ESC PRESSED");
-			gotoxy(MAXX - 4 + SCREENSTARTX, MAXY + 11);
-			puts("GAME OVER");
-			exit(1);
+			pressedESC();
 		}
 	}
 }
@@ -572,6 +573,16 @@ int MaxMinLining(float x1, float x2, float y1, float y2, float max_x, float min_
 	lining(x1, x2, y1, y2, max_x, min_x, max_y, min_y);
 	//DebugText("TEST");
 	//DebugFloat(x1);
+}
+
+int pressedESC()
+{
+	DebugText("GAME OFF...");
+	gotoxy(MAXX - 5 + SCREENSTARTX, MAXY + SCREENSTARTY);
+	puts("ESC PRESSED");
+	gotoxy(MAXX - 4 + SCREENSTARTX, MAXY + SCREENSTARTY + 1);
+	puts("GAME OVER");
+	exit(1);
 }
 
 int DebugText(char word[])
