@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ncurses.h>
-//#include <mmsystem.h>
-
-//#pragma comment(lib, "winmm.lib")
+#include <unistd.h>
+#include <termios.h>
+#include <fcntl.h>
 
 #define UP 72
 #define LEFT 75
@@ -69,32 +69,59 @@ int cloud[6][10] = {
 
 enum colorName
 {
-	BLACK,  D_BLUE,   D_GREEN,  D_SKYBLUE,	//	0,	1,	2,  3
-	D_RED,  D_VIOLET, D_YELLOW, GRAY,	//	4,	5,	6,  7
-	D_GRAY, BLUE,     GREEN,    SKYBLUE,		//	8,	9, 10, 11
-	RED,    VIOLET,   YELLOW,   WHITE			// 12, 13, 14, 15
+	BLACK,  D_BLUE,   D_GREEN,  D_SKYBLUE,	// 0,	1,  2,  3
+	D_RED,  D_VIOLET, D_YELLOW, GRAY,	// 4,	5,  6,  7
+	D_GRAY, BLUE,     GREEN,    SKYBLUE,	// 8,	9, 10, 11
+	RED,    VIOLET,   YELLOW,   WHITE	// 12, 13, 14, 15
 };
 
-void color(int bgColor, int textColor)
+int kbhit(void)
+{
+  struct termios oldt, newt;
+  int ch;
+  int oldf;
+ 
+  tcgetattr(STDIN_FILENO, &oldt);
+  newt = oldt;
+  newt.c_lflag &= ~(ICANON | ECHO);
+  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+ 
+  ch = getchar();
+ 
+  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+  fcntl(STDIN_FILENO, F_SETFL, oldf);
+ 
+  if(ch != EOF)
+  {
+    ungetc(ch, stdin);
+    return 1;
+  }
+ 
+  return 0;
+}
+
+int color(int bgColor, int textColor)
 {
 	switch (bgColor)
 	{
-	case BLACK:		  bgColor = 40; break;
-	case D_RED:		  bgColor = 41; break;
-	case D_GREEN:	  bgColor = 42; break;
+	case BLACK:	bgColor = 40; break;
+	case D_RED:	bgColor = 41; break;
+	case D_GREEN:	bgColor = 42; break;
 	case D_YELLOW:	bgColor = 43; break;
-	case D_BLUE:	  bgColor = 44; break;
+	case D_BLUE:	bgColor = 44; break;
 	case D_VIOLET:	bgColor = 45; break;
 	case D_SKYBLUE:	bgColor = 46; break;
-	case GRAY:		  bgColor = 47; break;
-	case D_GRAY:	  bgColor = 100;break;
-	case RED:		    bgColor = 101;break;
-	case GREEN:		  bgColor = 102;break;
-	case YELLOW:	  bgColor = 103;break;
-	case BLUE:		  bgColor = 104;break;
-	case VIOLET:	  bgColor = 105;break;
-	case SKYBLUE:	  bgColor = 106;break;
-	case WHITE:		  bgColor = 107;break;
+	case GRAY:	bgColor = 47; break;
+	case D_GRAY:	bgColor = 100;break;
+	case RED:	bgColor = 101;break;
+	case GREEN:	bgColor = 102;break;
+	case YELLOW:	bgColor = 103;break;
+	case BLUE:	bgColor = 104;break;
+	case VIOLET:	bgColor = 105;break;
+	case SKYBLUE:	bgColor = 106;break;
+	case WHITE:	bgColor = 107;break;
 	}
 
 	//printf("%c[%d;%d;%dm"0x1B,7,49,bgColor); // 특성, 글자색, 바탕색
@@ -102,15 +129,13 @@ void color(int bgColor, int textColor)
 	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), bgColor * 16 + textColor);
 }
 
-void gotoxy(int x, int y)
+int gotoxy(int x, int y)
 {
-	//COORD pos = { x,y };
-	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 	printf("\033[%d;%df", y, x);
 	fflush(stdout);
 }
 
-void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, float max_y, float min_y) // x1,y1의 좌표와 x2,y2의 좌표를 선으로 이음
+int lining(float x1, float x2, float y1, float y2, float max_x, float min_x, float max_y, float min_y) // x1,y1의 좌표와 x2,y2의 좌표를 선으로 이음
 {
 	float x, y, a; //이은선 중 x좌표, y좌표 그리고 기울기
 	if (x2 - x1 >= y2 - y1)
@@ -198,7 +223,7 @@ void lining(float x1, float x2, float y1, float y2, float max_x, float min_x, fl
 	}
 }
 
-void printMap() // FLAT 맵 출력 (FLAT을 땅이라 부르기로) //어질어질하다
+int printMap() // FLAT 맵 출력 (FLAT을 땅이라 부르기로) //어질어질하다
 {
 	for (int i = MAXY / 2; i < MAXY - 1; i++) //땅 부분만 출력하면 되므로 지평선의 y값 부터
 	{
@@ -265,7 +290,7 @@ void printMap() // FLAT 맵 출력 (FLAT을 땅이라 부르기로) //어질어�
 	flatClear();
 }
 
-void background()
+int background()
 {
 	for (int i = 0; i < MAXY / 2; i++)
 	{
@@ -305,7 +330,7 @@ int flatClear() // 클린업
 	memcpy(flat, blankFlat, sizeof(blankFlat));
 }
 
-void MAXorMIN(float x1, float x2, float  y1, float y2) // x1과 x2, y1과 y2의 대소 관계 설정
+int MAXorMIN(float x1, float x2, float  y1, float y2) // x1과 x2, y1과 y2의 대소 관계 설정
 {
 	if (x2 >= x1) { max_x = x2; min_x = x1; }
 	else { max_x = x1; min_x = x2; }
@@ -313,23 +338,13 @@ void MAXorMIN(float x1, float x2, float  y1, float y2) // x1과 x2, y1과 y2의 
 	if (y2 >= y1) { max_y = y2; min_y = y1; }
 	else { max_y = y1; min_y = y2; }
 }
-/*
-void CursorView(int show) // 입력 커서 제거
-{
-	HANDLE hConsole;
-	CONSOLE_CURSOR_INFO ConsoleCursor;
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	ConsoleCursor.bVisible = show;
-	ConsoleCursor.dwSize = 1;
-	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
-}*/
 
-void moveControl()
+int moveControl()
 {
 	if (kbhit()) //키보드가 눌렸을 때만
 	{
-		char command = getch();
-		if (/*GetAsyncKeyState(VK_UP) || */command == UP) //GetAsyncKeyState()를 활용하면 입력할 때 필터키 없이 바로 입력이 가능하기에 거의 필수다
+		char command = getchar();
+		if (/*GetAsyncKeyState(VK_UP) || */command == UP || command == 'w') //GetAsyncKeyState()를 활용하면 입력할 때 필터키 없이 바로 입력이 가능하기에 거의 필수다
 			if (roadAniDelaySpeed != 0) //자동차가 도로를 달리는 방식은 단순하게도 도로 애니메이션으로 인해 움직인다.
 										//그 애니메이션 함수가 게임 프레임에 따라 거의 같은 프레임으로 움직이는데,
 										//그래서 roadAniDelaySpeed 값을 올리면 자동차의 속력이 낮아진 것 처럼 느껴진다.
@@ -337,12 +352,12 @@ void moveControl()
 			{
 				roadAniDelaySpeed--;
 			}
-		if (/*GetAsyncKeyState(VK_DOWN) || */command == DOWN)
+		if (/*GetAsyncKeyState(VK_DOWN) || */command == DOWN || command == 's')
 			if (roadAniDelaySpeed != 5)
 			{
 				roadAniDelaySpeed++;
 			}
-		if (/*GetAsyncKeyState(VK_RIGHT) || */command == RIGHT) //좌우 움직임으로 인해 화면 좌우 하단의 꼭짓점을 이동시켜야한다
+		if (/*GetAsyncKeyState(VK_RIGHT) || */command == RIGHT || command == 'd') //좌우 움직임으로 인해 화면 좌우 하단의 꼭짓점을 이동시켜야한다
 		{
 			if (y[2] > (MAXY / 2 + 3)) //자동차가 우측으로 움직이면 도로는 왼쪽으로 움직여야한다.
 									   //따라서 좌측 하단 꼭짓점이 화면밖으로 나갔다면 다시 화면의 최대지점에 두고 y값만 변경시킨다.
@@ -375,7 +390,7 @@ void moveControl()
 				}
 			}
 		}
-		if (/*GetAsyncKeyState(VK_LEFT) || */command == LEFT) //여기도 위와 비슷하다.
+		if (/*GetAsyncKeyState(VK_LEFT) || */command == LEFT || command == 'a') //여기도 위와 비슷하다.
 		{
 			if (y[3] > (MAXY / 2 + 3))
 			{
@@ -408,7 +423,7 @@ void moveControl()
 	}
 }
 
-void roadDownAnimation()
+int roadDownAnimation()
 {
 	char roadMoveScene[4][MAXY / 2] = {
 		{0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1}, //1이 색을 바꾸라는 거다
@@ -430,46 +445,8 @@ void roadDownAnimation()
 		}
 	}
 }
-/*
-void fullScreen()
-{
-	keybd_event(VK_MENU, 0x38, 0, 0);
-	keybd_event(VK_RETURN, 0x1c, 0, 0);
-	keybd_event(VK_RETURN, 0x1c, KEYEVENTF_KEYUP, 0);
-	keybd_event(VK_MENU, 0x38, KEYEVENTF_KEYUP, 0);
-}*/
-/*
-void playSound()
-{
-	PlaySound(TEXT(runSound), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-	/*switch (sound)
-	{
-	case BACKGROUND_SOUND :
-		PlaySound(TEXT(runSound), NULL, SND_FILENAME | SND_ASYNC | SND_LOOP);
-		break;
-	case BREAK_SOUND :
-		PlaySound(TEXT(breakSound), NULL, SND_FILENAME | SND_ASYNC);
-		break;
-	}*/
-	//사운드 파일 위치, SND_ASYNC, SND_LOOP 세가지가 제일 중요
-	//SND_ASYNC : 재생하면서 다음코드 실행
-	//SND_LOOP : 반복재생
-	//while (1)
-	//{
-	//	int a;
-	//	printf("종료?");
-	//	scanf("%d", &a);
-	//	if (a == 0)
-	//	{
-	//		PlaySound(NULL, 0, 0);
-	//		Sleep(1000);
-	//		printf("노래를 종료했습니다. 함수도 종료합니다.");
-	//		return;
-	//	}
-	//}
-}*/
 
-void car()
+int car()
 {
 	for (short i = 0; i < NORMAL_IMAGE_SIZE; i++)
 	{
@@ -486,7 +463,7 @@ int putColor(int _color)
 	if (_color != -1) { color(_color, _color); puts("  "); }
 }
 
-void roadAnimation()
+int roadAnimation()
 {
 	if (roadAniDelayCount >= roadAniDelaySpeed) //speed가 0에 가까울 수록 호출 빈도가 높아진다.
 	{
@@ -500,7 +477,7 @@ void roadAnimation()
 		roadAniDelayCount++; //이게 speed와 속도가 일치할 때 마다 애니메이션이 실행된다.
 }
 
-void gameSettingReady()
+int gameSettingReady()
 {
 	system("mode con:lines=61  cols=141"); //콘솔창 세로, 가로 조정 (이를 사용하면 우측의 슬라이드바가 사라진다.)
 
@@ -544,7 +521,7 @@ void gameSettingReady()
 	//CursorView(0); //커서 제거
 }
 
-void gamePlaying()
+int gamePlaying()
 {
 	while (TRUE) //게임이 실행되는 동안 무한루프
 	{
@@ -634,5 +611,3 @@ int main(void)
 	//DebugText("PLAYING..."); //잘 작동 되는지 확인하는 용도로 좌측 상단에 텍스트 출력
 	gamePlaying(); //유저의 조작 및 같이 실행되어야 하는 내용들
 }
-
-//nabilera1@naver.com
