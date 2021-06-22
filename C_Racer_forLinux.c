@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <ncurses.h>
 //#include <mmsystem.h>
 
@@ -537,7 +539,7 @@ void gameSettingReady()
 		y[5] = (MAXY - 1);
 	}
 
-	playSound(runSound); //배경음악 출력 (playSound()가 두가지 음악을 트는건 안되더라)
+	//playSound(runSound); //배경음악 출력 (playSound()가 두가지 음악을 트는건 안되더라)
 	car(); //자동차 출력
 	//CursorView(0); //커서 제거
 }
