@@ -479,10 +479,10 @@ int roadAnimation()
 
 int gameSettingReady()
 {
-	system("mode con:lines=61  cols=141"); //콘솔창 세로, 가로 조정 (이를 사용하면 우측의 슬라이드바가 사라진다.)
+	//system("mode con:lines=61  cols=141"); //콘솔창 세로, 가로 조정 (이를 사용하면 우측의 슬라이드바가 사라진다.)
 
 	//fullScreen(); //전체화면
-	Sleep(100); //fullScreen()은 적용되는데에 조금 느리다. 따라서 적용되는 시간을 주기 위해 100 밀리세컨드를 기다려 준다.
+	sleep(100); //fullScreen()은 적용되는데에 조금 느리다. 따라서 적용되는 시간을 주기 위해 100 밀리세컨드를 기다려 준다.
 	roadDownAnimation(); //도로 애니메이션 설정
 	background(); //배경 그리기 (하늘 및 구름)
 
