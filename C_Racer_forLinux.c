@@ -16,13 +16,11 @@
 
 #define MAXY 40
 #define MAXX 60
-#define SCREENSTARTX 0 //20
-#define SCREENSTARTY 0 //10
+#define SCREENSTARTX 30 //20
+#define SCREENSTARTY 5 //10
 
 #define BLANK_IMAGE -1
 #define NORMAL_IMAGE_SIZE 16
-
-//#define runSound "./Sound\\8-Bit-Fantasy-Racing-Music.wav"
 
 int roadAniFrame = 0;
 int roadAniDelaySpeed = 0;
