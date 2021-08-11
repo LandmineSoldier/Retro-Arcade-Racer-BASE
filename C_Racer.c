@@ -1,16 +1,15 @@
 #pragma warning(disable : 4996)
 #include <stdio.h>
 #include <Windows.h>
-//#include <WinUser.h> //필터키 삭제용으로 추가 했으나 변경방법 의문 (그냥 이런게 있으니 검색해서 사용해보아라)
 #include <conio.h>
 #include <mmsystem.h>
 
 #pragma comment(lib, "winmm.lib")
 
-//#define UP 72
-//#define LEFT 75
-//#define RIGHT 77
-//#define DOWN 80
+#define UP 72
+#define LEFT 75
+#define RIGHT 77
+#define DOWN 80
 
 #define TRUE 1
 #define FALSE 0
@@ -78,8 +77,29 @@ enum colorName
 
 void color(int bgColor, int textColor)
 {
-	//printf("\x1B[%dm", bgColor);
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), bgColor * 16 + textColor);
+	switch (bgColor)
+	{
+	case BLACK:		bgColor = 40; break;
+	case D_RED:		bgColor = 41; break;
+	case D_GREEN:	bgColor = 42; break;
+	case D_YELLOW:	bgColor = 43; break;
+	case D_BLUE:	bgColor = 44; break;
+	case D_VIOLET:	bgColor = 45; break;
+	case D_SKYBLUE:	bgColor = 46; break;
+	case GRAY:		bgColor = 47; break;
+	case D_GRAY:	bgColor = 100;break;
+	case RED:		bgColor = 101;break;
+	case GREEN:		bgColor = 102;break;
+	case YELLOW:	bgColor = 103;break;
+	case BLUE:		bgColor = 104;break;
+	case VIOLET:	bgColor = 105;break;
+	case SKYBLUE:	bgColor = 106;break;
+	case WHITE:		bgColor = 107;break;
+	}
+
+	//printf("%c[%d;%d;%dm"0x1B,7,49,bgColor); // 특성, 글자색, 바탕색
+	printf("%c[%dm", 27, bgColor); // 바탕색
+	//SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), bgColor * 16 + textColor);
 }
 
 void gotoxy(int x, int y)
@@ -188,7 +208,8 @@ void printMap() // FLAT 맵 출력 (FLAT을 땅이라 부르기로) //어질어�
 		{
 			char imageBlankCheck = FALSE; //현재 커서 좌표의 플레이어 이미지 값이 -1(무색) 인지 확인함
 			gotoxy(j * 2 + SCREENSTARTX, i + SCREENSTARTY); //커서 이동
-			if ((MAXY / 2 + 7 <= i && i <= MAXY - 5) && (MAXX / 2 - 8 <= j && j <= MAXX / 2 + 7)) // 자동차 범위
+			if (((MAXY / 2) <= i && i <= (MAXY / 2) + NORMAL_IMAGE_SIZE) &&
+				((MAXX / 2) - (NORMAL_IMAGE_SIZE / 2) <= j && j <= MAXX / 2 + NORMAL_IMAGE_SIZE)) // 자동차 범위
 			{
 				if (playerCar[i - MAXY / 2 + 1][j - MAXX / 2 - 8] == BLANK_IMAGE)
 					imageBlankCheck = TRUE; // 현재 출력 위치가 플레이어 이미지의 색상있는 곳에 있으면 거짓, 없으면 참
@@ -306,9 +327,10 @@ void CursorView(int show) // 입력 커서 제거
 
 void moveControl()
 {
-	if (kbhit()) //키보드가 눌렸을 때만
+	if (_kbhit()) //키보드가 눌렸을 때만
 	{
-		if (GetAsyncKeyState(VK_UP)) //GetAsyncKeyState()를 활용하면 입력할 때 필터키 없이 바로 입력이 가능하기에 거의 필수다
+		char command = _getch();
+		if (/*GetAsyncKeyState(VK_UP) || */command == UP) //GetAsyncKeyState()를 활용하면 입력할 때 필터키 없이 바로 입력이 가능하기에 거의 필수다
 			if (roadAniDelaySpeed != 0) //자동차가 도로를 달리는 방식은 단순하게도 도로 애니메이션으로 인해 움직인다.
 										//그 애니메이션 함수가 게임 프레임에 따라 거의 같은 프레임으로 움직이는데,
 										//그래서 roadAniDelaySpeed 값을 올리면 자동차의 속력이 낮아진 것 처럼 느껴진다.
@@ -316,12 +338,12 @@ void moveControl()
 			{
 				roadAniDelaySpeed--;
 			}
-		if (GetAsyncKeyState(VK_DOWN))
+		if (/*GetAsyncKeyState(VK_DOWN) || */command == DOWN)
 			if (roadAniDelaySpeed != 5)
 			{
 				roadAniDelaySpeed++;
 			}
-		if (GetAsyncKeyState(VK_RIGHT)) //좌우 움직임으로 인해 화면 좌우 하단의 꼭짓점을 이동시켜야한다
+		if (/*GetAsyncKeyState(VK_RIGHT) || */command == RIGHT) //좌우 움직임으로 인해 화면 좌우 하단의 꼭짓점을 이동시켜야한다
 		{
 			if (y[2] > (MAXY / 2 + 3)) //자동차가 우측으로 움직이면 도로는 왼쪽으로 움직여야한다.
 									   //따라서 좌측 하단 꼭짓점이 화면밖으로 나갔다면 다시 화면의 최대지점에 두고 y값만 변경시킨다.
@@ -354,7 +376,7 @@ void moveControl()
 				}
 			}
 		}
-		if (GetAsyncKeyState(VK_LEFT)) //여기도 위와 비슷하다.
+		if (/*GetAsyncKeyState(VK_LEFT) || */command == LEFT) //여기도 위와 비슷하다.
 		{
 			if (y[3] > (MAXY / 2 + 3))
 			{
@@ -376,11 +398,11 @@ void moveControl()
 				}
 			}
 		}
-		if (GetAsyncKeyState(VK_SPACE)) //스페이스바는 브레이크 기능을 한다.
+		if (/*GetAsyncKeyState(VK_SPACE) || */command == ' ') //스페이스바는 브레이크 기능을 한다.
 			roadAniDelayCount = -1;		//roadAniDelayCount를 왜 늘리지 않고 줄이냐면
 										//roadAniDelaySpeed보다 값이 큰 경우에만 실행되도록 되어있는데,
 										//-1이면 speed보다 더 낮기 때문에 함수가 실행되지 않으므로 애니메이션이 고정된다.
-		if (GetAsyncKeyState(VK_ESCAPE)) //esc눌러서 게임 끄는용도
+		if (/*GetAsyncKeyState(VK_ESCAPE) || */command == 'e') //esc눌러서 게임 끄는용도
 		{
 			pressedESC();
 		}
@@ -454,6 +476,8 @@ void car()
 	{
 		for (short j = 0; j < NORMAL_IMAGE_SIZE; j++)
 		{
+			//출력 좌표 x: j+가로 축 중앙 - (이미지 크기 / 2)
+			//출력 좌표 y: i+세로 축 중앙 - (이미지 크기 / 2)
 			gotoxy((j + (MAXX / 2) - (NORMAL_IMAGE_SIZE / 2)) * 2 + SCREENSTARTX, i + (MAXY / 2) + SCREENSTARTY);
 			putColor(playerCar[i][j]);
 		}
@@ -518,7 +542,7 @@ void gameSettingReady()
 		y[5] = (MAXY - 1);
 	}
 
-	playSound(runSound); //배경음악 출력 (playSound()가 두가지 음악을 트는건 안되더라)
+	//playSound(runSound); //배경음악 출력 (playSound()가 두가지 음악을 트는건 안되더라)
 	car(); //자동차 출력
 	CursorView(0); //커서 제거
 }
@@ -527,7 +551,7 @@ void gamePlaying()
 {
 	while (TRUE) //게임이 실행되는 동안 무한루프
 	{
-		color(BLACK, WHITE); //유저 조작 가능 이전에 하늘을 출력하는데 해당 커서 위치에 하늘색이 남아있을 수 있으므로 기본값으로 조정
+		color(BLACK, WHITE); //색상을 계속 초기화 해준다.
 		moveControl(); //유저 조작
 
 		/* 맵 도로 계속 업데이트 */
@@ -577,11 +601,11 @@ int MaxMinLining(float x1, float x2, float y1, float y2, float max_x, float min_
 
 int pressedESC()
 {
-	DebugText("GAME OFF...");
-	gotoxy(MAXX - 5 + SCREENSTARTX, MAXY + SCREENSTARTY);
-	puts("ESC PRESSED");
-	gotoxy(MAXX - 4 + SCREENSTARTX, MAXY + SCREENSTARTY + 1);
-	puts("GAME OVER");
+	//DebugText("GAME OFF...");
+	//gotoxy(MAXX - 5 + SCREENSTARTX, MAXY + SCREENSTARTY);
+	//puts("ESC PRESSED");
+	//gotoxy(MAXX - 4 + SCREENSTARTX, MAXY + SCREENSTARTY + 1);
+	//puts("GAME OVER");
 	exit(1);
 }
 
@@ -606,10 +630,12 @@ int DebugFloat(float num)
 int main(void)
 {
 	/* 게임 시작전 설정 */
-	DebugText("SETTING..."); //잘 작동 되는지 확인하는 용도로 좌측 상단에 텍스트 출력
+	//DebugText("SETTING..."); //잘 작동 되는지 확인하는 용도로 좌측 상단에 텍스트 출력
 	gameSettingReady(); //유저가 조작하기 전에 설정해야할 내용들
 
 	/* 게임 동작 */
-	DebugText("PLAYING..."); //잘 작동 되는지 확인하는 용도로 좌측 상단에 텍스트 출력
+	//DebugText("PLAYING..."); //잘 작동 되는지 확인하는 용도로 좌측 상단에 텍스트 출력
 	gamePlaying(); //유저의 조작 및 같이 실행되어야 하는 내용들
 }
+
+//nabilera1@naver.com
